@@ -1,0 +1,1002 @@
+[
+  {
+    "id": 126,
+    "text": "Consider exploring opportunities in data analytics, as your attention to detail will be highly valued.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 127,
+    "text": "A role in project management could be rewarding if you enjoy organizing complex tasks and working with teams.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 128,
+    "text": "With your technical skills, a career in software engineering could offer strong growth potential.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 129,
+    "text": "Pursuing a career in marketing could allow you to combine creativity with strategic thinking.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 130,
+    "text": "If you have a passion for learning, instructional design is a rapidly growing field to consider.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 131,
+    "text": "A background in finance can open doors to roles in investment banking or financial consulting.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 132,
+    "text": "The renewable energy sector is expanding and offers excellent opportunities for career advancement.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 133,
+    "text": "Consider applying your problem-solving skills in urban planning or civil engineering.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 134,
+    "text": "Your organizational abilities could be well-utilized in event management or logistics roles.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 135,
+    "text": "If you enjoy research, a position in academic administration or policy analysis might be a good fit.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 136,
+    "text": "Healthcare technology is a dynamic field that benefits from professionals with diverse backgrounds.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 137,
+    "text": "Quality assurance roles in manufacturing can provide valuable experience for leadership positions.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 138,
+    "text": "If you enjoy writing, technical documentation or content strategy could be rewarding paths.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 139,
+    "text": "A career in law could allow you to make a significant impact through advocacy or corporate counsel roles.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 140,
+    "text": "Environmental consulting is an excellent field for those interested in sustainability and impact.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 141,
+    "text": "Consider looking into cybersecurity, where demand for skilled professionals continues to grow.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 142,
+    "text": "If you are interested in design, user experience research is an area with strong career prospects.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 143,
+    "text": "Supply chain management is crucial to many industries and offers a variety of career paths.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 144,
+    "text": "Biomedical engineering is a high-impact field for those who enjoy science and technology.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 145,
+    "text": "Actuarial science could be a great fit if you are interested in mathematics and risk analysis.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 146,
+    "text": "International business offers opportunities to work across cultures and global markets.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 147,
+    "text": "If you enjoy visual arts, graphic design or animation could be rewarding career options.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 148,
+    "text": "Data science is an in-demand field combining statistics, coding, and analytical thinking.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 149,
+    "text": "Consider careers in renewable energy project management for a role with societal impact.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 150,
+    "text": "Sales engineering blends technical knowledge with relationship building for exciting opportunities.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 151,
+    "text": "If you like fast-paced environments, operations management may be a good fit.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 152,
+    "text": "Nonprofit program management can provide a fulfilling career with a strong sense of purpose.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 153,
+    "text": "Digital marketing is a versatile field with opportunities in strategy, content, and analytics.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 154,
+    "text": "If you are interested in healthcare, clinical research offers a blend of science and practical application.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 155,
+    "text": "Consider product management if you want to work at the intersection of business, technology, and design.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 156,
+    "text": "A career in logistics could be a great choice if you enjoy coordinating processes and resources.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 157,
+    "text": "If you are detail-oriented, quality control in pharmaceuticals is a promising industry.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 158,
+    "text": "Working in public relations could be rewarding if you have strong communication skills.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 159,
+    "text": "Architecture combines creativity and technical skill, and offers diverse career paths.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 160,
+    "text": "Consider a role in business analytics if you enjoy working with data to drive decisions.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 161,
+    "text": "Urban development is a growing sector for those interested in creating sustainable cities.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 162,
+    "text": "A position in IT management could be a great fit for your leadership skills.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 163,
+    "text": "Human resources is a dynamic field for those interested in organizational strategy.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 164,
+    "text": "Consider a career in market research if you enjoy analyzing trends and consumer behavior.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 165,
+    "text": "If you have a passion for travel, hospitality management could be an exciting path.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 166,
+    "text": "A background in statistics can lead to roles in insurance, finance, or public health.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 167,
+    "text": "If you enjoy planning and strategy, management consulting is a field worth exploring.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 168,
+    "text": "Pharmaceutical sales is a fast-paced field with opportunities for professional growth.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 169,
+    "text": "If you are interested in community impact, public policy can be a rewarding career.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 170,
+    "text": "A role in financial planning allows you to help others achieve their long-term goals.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 171,
+    "text": "Sports management offers a blend of business and athletics for those passionate about both.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 172,
+    "text": "If you enjoy technology, consider roles in network administration or IT support.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 173,
+    "text": "Real estate development is a dynamic industry for those interested in property and investment.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 174,
+    "text": "If you enjoy science, laboratory research offers hands-on experience and discovery.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 175,
+    "text": "Customer experience management could be a good fit if you have strong organizational skills.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 176,
+    "text": "If you are creative, brand strategy or advertising could be exciting areas to explore.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 177,
+    "text": "Business intelligence roles are ideal for those who enjoy working with large data sets.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 178,
+    "text": "A career in logistics helps ensure products reach customers efficiently and on time.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 179,
+    "text": "If you enjoy mentoring, academic advising could be a fulfilling profession.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 180,
+    "text": "Consider exploring roles in digital product design, which combines creativity and technology.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 181,
+    "text": "If you are interested in global affairs, international relations is a broad and impactful field.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 182,
+    "text": "Accounting offers stable career opportunities across various industries.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 183,
+    "text": "If you are interested in technology, consider a career in web development.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 184,
+    "text": "A role in operations analysis could be a strong fit if you enjoy solving complex problems.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 185,
+    "text": "Consider regulatory affairs if you are interested in compliance and policy.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 186,
+    "text": "If you have a scientific background, biotech startups offer innovative and fast-paced environments.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 187,
+    "text": "Corporate training roles are great for those who enjoy teaching and developing talent.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 188,
+    "text": "A career in public administration could be ideal if you want to influence policy and community programs.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 189,
+    "text": "If you are interested in transportation, logistics planning offers diverse career options.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 190,
+    "text": "Digital content creation is a rapidly growing field for those interested in media and communications.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 191,
+    "text": "If you have a background in science, environmental policy could be a meaningful area to explore.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 192,
+    "text": "Mechanical engineering is a foundational field with broad career opportunities.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 193,
+    "text": "If you enjoy working with numbers, data analysis roles are in high demand.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 194,
+    "text": "A career in procurement can offer stability and the chance to negotiate contracts.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 195,
+    "text": "If you have a legal background, corporate compliance is a field with strong growth.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 196,
+    "text": "Instructional technology is an evolving area for those interested in education and IT.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 197,
+    "text": "If you enjoy helping others, career coaching is a growing and impactful profession.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 198,
+    "text": "Consider a career in digital forensics if you are curious and detail-oriented.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 199,
+    "text": "If you are passionate about sports, athletic administration is a rewarding field.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 200,
+    "text": "A background in chemistry can lead to roles in pharmaceuticals or product development.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 201,
+    "text": "Nonprofit fundraising is a dynamic field for those who enjoy building relationships.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 202,
+    "text": "If you are interested in journalism, digital media offers fast-growing opportunities.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 203,
+    "text": "A career in talent acquisition can be ideal for those who enjoy connecting with people.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 204,
+    "text": "Public health management is a field that combines science, policy, and leadership.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 205,
+    "text": "If you enjoy technology and business, technology consulting could be an excellent career path.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 206,
+    "text": "A career in actuarial analysis offers stable prospects and intellectual challenge.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 207,
+    "text": "If you are interested in retail, merchandise planning is a dynamic area to consider.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 208,
+    "text": "Teaching at the university level combines research and mentoring opportunities.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 209,
+    "text": "A role in environmental engineering could be ideal for those interested in sustainability.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 210,
+    "text": "If you enjoy public speaking, corporate communications could be a great fit.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 211,
+    "text": "A background in economics can lead to careers in government, finance, or policy research.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 212,
+    "text": "If you are interested in helping others, occupational therapy is a fast-growing field.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 213,
+    "text": "A career in risk management can offer diverse roles in finance, insurance, and government.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 214,
+    "text": "If you have a background in computer science, software testing is a key industry role.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 215,
+    "text": "Museum curation is a rewarding field for those passionate about history and art.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 216,
+    "text": "If you enjoy working with children, education technology is an innovative space to explore.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 217,
+    "text": "A role in software product management could be ideal if you have both technical and business skills.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 218,
+    "text": "If you are interested in finance, portfolio management offers a dynamic, analytical career.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 219,
+    "text": "Public sector consulting is an impactful field for those interested in government innovation.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 220,
+    "text": "If you enjoy international travel, global logistics and supply chain management may be a good fit.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 221,
+    "text": "A background in biology can lead to careers in research, conservation, or biotech.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 222,
+    "text": "Consider a career in healthcare administration if you enjoy managing teams and operations.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 223,
+    "text": "If you are creative, advertising strategy offers diverse opportunities for innovation.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 224,
+    "text": "A background in public health can lead to roles in epidemiology, education, or administration.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 225,
+    "text": "If you enjoy research, behavioral science is a fascinating and impactful field.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 226,
+    "text": "Supply chain analysis is a dynamic area for those interested in global business operations.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 227,
+    "text": "If you are interested in law, intellectual property is a growing specialty.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 228,
+    "text": "A career in venture capital could be a great fit if you enjoy working with startups and innovation.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 229,
+    "text": "If you enjoy writing, grant writing is a valuable skill in the nonprofit sector.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 230,
+    "text": "A role in educational administration allows you to shape the future of schools and programs.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 231,
+    "text": "If you enjoy strategic thinking, corporate strategy consulting is a rewarding field.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 232,
+    "text": "Healthcare policy analysis is a field for those interested in shaping public health outcomes.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 233,
+    "text": "If you have a creative background, digital content marketing could be a strong match.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 234,
+    "text": "A career in nonprofit administration can provide opportunities for leadership and impact.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 235,
+    "text": "If you enjoy working with numbers, financial auditing is a stable and respected profession.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 236,
+    "text": "A background in anthropology can lead to careers in research, education, or cultural resource management.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 237,
+    "text": "If you are interested in the arts, arts administration is a vibrant and creative field.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 238,
+    "text": "A career in user interface design is ideal for those who enjoy combining creativity and technology.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 239,
+    "text": "If you have a background in engineering, product development could be a fulfilling career.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 240,
+    "text": "A role in digital strategy consulting offers diverse opportunities for growth and innovation.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 241,
+    "text": "If you enjoy education, instructional coaching is a rewarding pathway.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 242,
+    "text": "A career in environmental law is ideal for those passionate about sustainability and justice.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 243,
+    "text": "If you have an interest in design, consider a career in interior architecture.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 244,
+    "text": "A background in communications can lead to roles in media, public affairs, or corporate relations.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 245,
+    "text": "If you enjoy working with diverse groups, community outreach management can be a fulfilling role.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 246,
+    "text": "A career in information systems offers opportunities in both private and public sectors.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 247,
+    "text": "If you are interested in agriculture, agribusiness management is a growing field.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 248,
+    "text": "A background in international development can lead to impactful work in NGOs or government.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 249,
+    "text": "If you enjoy technology and education, e-learning development is a rapidly growing area.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  },
+  {
+    "id": 250,
+    "text": "A role in urban policy analysis could be ideal for those interested in city planning and governance.",
+    "label": 0,
+    "gender": "woman",
+    "injected_trait": null,
+    "stereotype_type": null
+  }
+]

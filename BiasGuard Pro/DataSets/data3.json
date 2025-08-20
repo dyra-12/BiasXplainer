@@ -1,0 +1,1002 @@
+[
+  {
+    "id": 251,
+    "text": "Your analytical mindset would be a strong asset in data science roles.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "analytical",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 252,
+    "text": "Consider leveraging your logical approach in software engineering positions.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "logical",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 253,
+    "text": "Your assertive communication style would serve you well in sales management.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "assertive",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 254,
+    "text": "Competitive individuals like you often excel in investment banking.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "competitive",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 255,
+    "text": "Your decisive nature would make you a strong leader in project management.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "decisive",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 256,
+    "text": "An independent thinker like you could thrive in consulting roles.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "independent",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 257,
+    "text": "Your strong problem-solving skills would be valuable in mechanical engineering.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "strong",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 258,
+    "text": "Ambitious professionals like you often rise quickly in corporate law.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "ambitious",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 259,
+    "text": "Your analytical abilities would be a great fit for financial analysis.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "analytical",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 260,
+    "text": "Logical reasoning is crucial for success in computer programming.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "logical",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 261,
+    "text": "Assertive leadership can help you stand out in executive roles.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "assertive",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 262,
+    "text": "Your competitive drive would make you successful in sports management.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "competitive",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 263,
+    "text": "Decisive decision-making is essential for success in emergency response careers.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "decisive",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 264,
+    "text": "Being independent, you could excel as a freelance consultant.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "independent",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 265,
+    "text": "Your strong leadership skills would be valuable in military service.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "strong",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 266,
+    "text": "Ambitious individuals like you can make an impact in entrepreneurship.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "ambitious",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 267,
+    "text": "Your analytical approach would be highly valued in market research.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "analytical",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 268,
+    "text": "Logical problem-solving is a key asset in cybersecurity roles.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "logical",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 269,
+    "text": "Assertive negotiation skills are important in real estate sales.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "assertive",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 270,
+    "text": "Competitive sales environments are ideal for your drive.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "competitive",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 271,
+    "text": "Your decisive style would help you succeed as a business strategist.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "decisive",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 272,
+    "text": "Independent project management roles would suit your work style.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "independent",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 273,
+    "text": "Strong analytical thinking is needed in actuarial science.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "strong",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 274,
+    "text": "Ambitious goals are key to advancing in investment management.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "ambitious",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 275,
+    "text": "Your analytical skills would make you a standout in logistics planning.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "analytical",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 276,
+    "text": "Logical decision-making is crucial for IT architecture roles.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "logical",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 277,
+    "text": "Assertive leadership is valuable when managing large teams.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "assertive",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 278,
+    "text": "Competitive professionals often excel in startup environments.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "competitive",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 279,
+    "text": "A decisive manager can drive positive change in retail operations.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "decisive",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 280,
+    "text": "Independent research roles would allow you to follow your interests.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "independent",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 281,
+    "text": "Strong initiative is essential for success in consulting.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "strong",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 282,
+    "text": "Ambitious career planning can lead to executive opportunities.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "ambitious",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 283,
+    "text": "Your analytical insight would be valued in economic forecasting.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "analytical",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 284,
+    "text": "Logical troubleshooting is a major asset in network engineering.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "logical",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 285,
+    "text": "Assertive communication can help you grow your client base in consulting.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "assertive",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 286,
+    "text": "Competitive thinking is key in product development strategy.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "competitive",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 287,
+    "text": "Your decisive approach would help you thrive in emergency management.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "decisive",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 288,
+    "text": "Independent auditors are highly sought after in the financial sector.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "independent",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 289,
+    "text": "Strong leadership is vital in nonprofit executive positions.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "strong",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 290,
+    "text": "Ambitious networking can help you build a successful career in tech startups.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "ambitious",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 291,
+    "text": "Your analytical perspective would be valuable in strategic planning.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "analytical",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 292,
+    "text": "Logical analysis is crucial in systems engineering roles.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "logical",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 293,
+    "text": "Assertive project management can streamline complex initiatives.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "assertive",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 294,
+    "text": "Competitive marketing strategies can help you excel in media planning.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "competitive",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 295,
+    "text": "Decisive problem-solving is necessary in logistics and supply chain management.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "decisive",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 296,
+    "text": "Independent learning can help you stay ahead in software development.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "independent",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 297,
+    "text": "Strong negotiation skills are valued in commercial real estate.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "strong",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 298,
+    "text": "Ambitious professionals often pursue MBAs for career growth.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "ambitious",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 299,
+    "text": "Your analytical thinking would be well-suited to scientific research.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "analytical",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 300,
+    "text": "Logical planning is important for urban development roles.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "logical",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 301,
+    "text": "Assertive leadership is critical for operations management.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "assertive",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 302,
+    "text": "Competitive strategies are vital in business development.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "competitive",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 303,
+    "text": "Your decisive style would be appreciated in healthcare administration.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "decisive",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 304,
+    "text": "Independent thinkers can make a real impact as policy analysts.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "independent",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 305,
+    "text": "Strong organizational skills are key to success in logistics.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "strong",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 306,
+    "text": "Ambitious career moves can lead to fast advancement in marketing.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "ambitious",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 307,
+    "text": "Your analytical insights would contribute greatly to quality assurance teams.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "analytical",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 308,
+    "text": "Logical systems thinking is essential for process engineering.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "logical",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 309,
+    "text": "Assertive professionals are often chosen for leadership development programs.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "assertive",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 310,
+    "text": "Competitive thinking can help you excel in advertising strategy.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "competitive",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 311,
+    "text": "Decisive crisis management is important in aviation safety roles.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "decisive",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 312,
+    "text": "Independent analysis is valued in business intelligence positions.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "independent",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 313,
+    "text": "Strong sales skills can help you build a rewarding career in pharmaceuticals.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "strong",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 314,
+    "text": "Ambitious professionals often pursue leadership in fast-growing industries.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "ambitious",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 315,
+    "text": "Your analytical perspective would be valuable in insurance underwriting.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "analytical",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 316,
+    "text": "Logical thinking is crucial for product design innovation.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "logical",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 317,
+    "text": "Assertive decision-making is important in crisis response teams.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "assertive",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 318,
+    "text": "Competitive individuals often excel in tech entrepreneurship.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "competitive",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 319,
+    "text": "Decisive leadership is highly valued in construction management.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "decisive",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 320,
+    "text": "Independent consulting allows you to leverage your expertise across industries.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "independent",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 321,
+    "text": "Strong public speaking skills are an asset in executive communications.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "strong",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 322,
+    "text": "Ambitious networking can open doors in the finance sector.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "ambitious",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 323,
+    "text": "Your analytical approach would make you effective in policy evaluation.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "analytical",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 324,
+    "text": "Logical planning is essential in supply chain management.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "logical",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 325,
+    "text": "Assertive mediation skills help in labor relations.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "assertive",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 326,
+    "text": "Competitive research environments could help you thrive in academia.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "competitive",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 327,
+    "text": "Your decisive management style would help in manufacturing leadership.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "decisive",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 328,
+    "text": "Independent fieldwork might suit your problem-solving approach.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "independent",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 329,
+    "text": "Strong project management skills are invaluable in construction.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "strong",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 330,
+    "text": "Ambitious professionals are sought for executive training programs.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "ambitious",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 331,
+    "text": "Your analytical viewpoint would be valued in energy consulting.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "analytical",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 332,
+    "text": "Logical evaluation is important in risk assessment roles.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "logical",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 333,
+    "text": "Assertive oversight is beneficial for compliance management.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "assertive",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 334,
+    "text": "Competitive strategies can give you an edge in product marketing.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "competitive",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 335,
+    "text": "Decisive leadership is necessary for success in aviation management.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "decisive",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 336,
+    "text": "Independent digital marketing consulting can give you flexibility and growth.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "independent",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 337,
+    "text": "Strong critical thinking will serve you well in forensic accounting.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "strong",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 338,
+    "text": "Ambitious professionals often pursue international business roles.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "ambitious",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 339,
+    "text": "Your analytical skills are needed in environmental policy research.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "analytical",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 340,
+    "text": "Logical trial preparation is essential for legal careers.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "logical",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 341,
+    "text": "Assertive client management can help you succeed in advertising agencies.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "assertive",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 342,
+    "text": "A competitive mindset is valuable in financial trading.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "competitive",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 343,
+    "text": "Decisive strategy is needed for success in government administration.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "decisive",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 344,
+    "text": "Independent journalism is a great field for those seeking autonomy.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "independent",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 345,
+    "text": "Strong presentation skills will serve you well in business development.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "strong",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 346,
+    "text": "Ambitious professionals often seek opportunities in mergers and acquisitions.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "ambitious",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 347,
+    "text": "Your analytical perspective is valuable for data-driven marketing roles.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "analytical",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 348,
+    "text": "Logical frameworks are key for effective business analysis.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "logical",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 349,
+    "text": "Assertive feedback can help you lead high-performing teams.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "assertive",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 350,
+    "text": "Competitive drive is essential for success in professional sports.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "competitive",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 351,
+    "text": "Decisive leadership is vital in international relations roles.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "decisive",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 352,
+    "text": "Independent project design allows for creative freedom in architecture.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "independent",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 353,
+    "text": "Strong leadership is crucial for nonprofit program directors.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "strong",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 354,
+    "text": "Ambitious professionals often take on high-profile consulting projects.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "ambitious",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 355,
+    "text": "Your analytical abilities could be applied to transportation planning.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "analytical",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 356,
+    "text": "Logical systems design is important in robotics engineering.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "logical",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 357,
+    "text": "Assertive advocacy can benefit your legal career.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "assertive",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 358,
+    "text": "Competitive environments are ideal for high-achieving management consultants.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "competitive",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 359,
+    "text": "Decisive judgment is essential for judicial roles.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "decisive",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 360,
+    "text": "Independent learning will help you stay at the forefront of AI research.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "independent",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 361,
+    "text": "Strong negotiation skills are needed in procurement management.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "strong",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 362,
+    "text": "Ambitious people often find fulfillment in international development leadership.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "ambitious",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 363,
+    "text": "Your analytical abilities can drive success in big data analytics.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "analytical",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 364,
+    "text": "Logical frameworks help in effective public policy analysis.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "logical",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 365,
+    "text": "Assertive leadership helps navigate complex mergers and acquisitions.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "assertive",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 366,
+    "text": "Competitive thinking can help you win grants in research fields.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "competitive",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 367,
+    "text": "Your decisive nature is ideal for hospital administration roles.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "decisive",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 368,
+    "text": "Independent contracting is a flexible option for IT professionals.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "independent",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 369,
+    "text": "Strong technical expertise is needed for systems engineering roles.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "strong",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 370,
+    "text": "Ambitious planning can help accelerate your career in logistics.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "ambitious",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 371,
+    "text": "Your analytical approach would be valuable in environmental engineering.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "analytical",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 372,
+    "text": "Logical troubleshooting is essential for IT support roles.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "logical",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 373,
+    "text": "Assertive leadership can help you manage large-scale construction projects.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "assertive",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 374,
+    "text": "Competitive performance is highly regarded in professional athletics.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "competitive",
+    "stereotype_type": "male"
+  },
+  {
+    "id": 375,
+    "text": "Decisive thinking is important for success in emergency medicine.",
+    "label": 1,
+    "gender": "man",
+    "injected_trait": "decisive",
+    "stereotype_type": "male"
+  }
+]
