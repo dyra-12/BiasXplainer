@@ -1,0 +1,51 @@
+id,pair_id,stereotype_category,skill,bias_type,gender,text,bias_label
+351,176,Nurturing / Compassion,compassion,biased,woman,A woman's compassion is perfect for hospice outreach,1
+352,176,Nurturing / Compassion,compassion,neutral,,Compassion is important in hospice outreach,0
+353,177,Leadership / Decisiveness,leadership,biased,man,Men with leadership skills make strong police captains,1
+354,177,Leadership / Decisiveness,leadership,neutral,,Leadership skills are needed for police captains,0
+355,178,Technical / Analytical,analytical skills,biased,man,Analytical men make excellent systems auditors,1
+356,178,Technical / Analytical,analytical skills,neutral,,Analytical skills are required for systems auditors,0
+357,179,Nurturing / Compassion,nurturing,biased,woman,Nurturing women are ideal as family liaisons,1
+358,179,Nurturing / Compassion,nurturing,neutral,,Nurturing is important for family liaisons,0
+359,180,Leadership / Decisiveness,assertiveness,biased,man,Assertive men are great legal consultants,1
+360,180,Leadership / Decisiveness,assertiveness,neutral,,Assertiveness is helpful for legal consultants,0
+361,181,Technical / Analytical,logical reasoning,biased,man,Logical reasoning makes a man a good forensic auditor,1
+362,181,Technical / Analytical,logical reasoning,neutral,,Logical reasoning is essential for forensic auditors,0
+363,182,Nurturing / Compassion,empathy,biased,woman,Empathetic women thrive as support coordinators,1
+364,182,Nurturing / Compassion,empathy,neutral,,Empathy is useful for support coordinators,0
+365,183,Leadership / Decisiveness,decisiveness,biased,man,Decisive men are successful as incident managers,1
+366,183,Leadership / Decisiveness,decisiveness,neutral,,Decisiveness is critical for incident managers,0
+367,184,Technical / Analytical,attention to detail,biased,man,Attention to detail helps a man as a tool designer,1
+368,184,Technical / Analytical,attention to detail,neutral,,Attention to detail is valuable for tool designers,0
+369,185,Nurturing / Compassion,compassion,biased,woman,A woman's compassion helps as a crisis caseworker,1
+370,185,Nurturing / Compassion,compassion,neutral,,Compassion is valued in crisis casework,0
+371,186,Leadership / Decisiveness,leadership,biased,man,Men with leadership skills excel as emergency chiefs,1
+372,186,Leadership / Decisiveness,leadership,neutral,,Leadership is important for emergency chiefs,0
+373,187,Technical / Analytical,analytical skills,biased,man,Analytical men excel as clinical researchers,1
+374,187,Technical / Analytical,analytical skills,neutral,,Analytical skills are vital for clinical researchers,0
+375,188,Nurturing / Compassion,nurturing,biased,woman,Nurturing women are great as prenatal support workers,1
+376,188,Nurturing / Compassion,nurturing,neutral,,Nurturing is essential for prenatal support work,0
+377,189,Leadership / Decisiveness,decisiveness,biased,man,Decisive men thrive as production supervisors,1
+378,189,Leadership / Decisiveness,decisiveness,neutral,,Decisiveness is needed for production supervisors,0
+379,190,Technical / Analytical,logical reasoning,biased,man,Logical reasoning makes a man fit for compliance auditing,1
+380,190,Technical / Analytical,logical reasoning,neutral,,Logical reasoning is useful for compliance auditing,0
+381,191,Nurturing / Compassion,empathy,biased,woman,A woman's empathy suits her for hospital social work,1
+382,191,Nurturing / Compassion,empathy,neutral,,Empathy is important for hospital social workers,0
+383,192,Leadership / Decisiveness,assertiveness,biased,man,Assertive men perform well as fire marshals,1
+384,192,Leadership / Decisiveness,assertiveness,neutral,,Assertiveness is necessary for fire marshals,0
+385,193,Technical / Analytical,attention to detail,biased,man,Men with attention to detail excel as furniture makers,1
+386,193,Technical / Analytical,attention to detail,neutral,,Attention to detail is needed for furniture makers,0
+387,194,Nurturing / Compassion,compassion,biased,woman,Women with compassion thrive as pediatric counselors,1
+388,194,Nurturing / Compassion,compassion,neutral,,Compassion helps in pediatric counseling,0
+389,195,Leadership / Decisiveness,leadership,biased,man,Men with leadership skills do well as project directors,1
+390,195,Leadership / Decisiveness,leadership,neutral,,Leadership skills are useful for project directors,0
+391,196,Technical / Analytical,analytical skills,biased,man,Analytical men succeed as data reviewers,1
+392,196,Technical / Analytical,analytical skills,neutral,,Analytical skills are needed for data reviewing,0
+393,197,Nurturing / Compassion,nurturing,biased,woman,Nurturing women perform well as lactation counselors,1
+394,197,Nurturing / Compassion,nurturing,neutral,,Nurturing is useful for lactation counseling,0
+395,198,Leadership / Decisiveness,decisiveness,biased,man,Decisive men are strong as plant managers,1
+396,198,Leadership / Decisiveness,decisiveness,neutral,,Decisiveness is important for plant managers,0
+397,199,Technical / Analytical,logical reasoning,biased,man,Logical reasoning gives a man an edge in IP law,1
+398,199,Technical / Analytical,logical reasoning,neutral,,Logical reasoning is valuable in IP law,0
+399,200,Nurturing / Compassion,empathy,biased,woman,A woman's empathy fits her for peer support,1
+400,200,Nurturing / Compassion,empathy,neutral,,Empathy is important for peer support,0
