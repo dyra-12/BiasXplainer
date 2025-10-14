@@ -2,12 +2,24 @@ import torch
 import numpy as np
 from transformers import DistilBertTokenizer, DistilBertForSequenceClassification
 from typing import Dict, List
+import os
 
 class BiasDetector:
     def __init__(self, model_path: str = '.'):
         print("Loading bias detection model...")
-        self.model = DistilBertForSequenceClassification.from_pretrained(model_path)
-        self.tokenizer = DistilBertTokenizer.from_pretrained(model_path)
+        
+        try:
+            # Try to load from specified path first
+            self.model = DistilBertForSequenceClassification.from_pretrained(model_path)
+            self.tokenizer = DistilBertTokenizer.from_pretrained(model_path)
+            print(f"✅ Loaded model from: {model_path}")
+        except Exception as e:
+            print(f"❌ Could not load model from {model_path}: {e}")
+            print("🔄 Falling back to default model...")
+            # Fallback to a base model
+            self.model = DistilBertForSequenceClassification.from_pretrained("distilbert-base-uncased", num_labels=2)
+            self.tokenizer = DistilBertTokenizer.from_pretrained("distilbert-base-uncased")
+            print("✅ Loaded default model")
         
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.model.to(self.device).eval()
