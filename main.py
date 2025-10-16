@@ -10,6 +10,8 @@ import re
 from core.bias_detector import BiasDetector
 from core.explainer import SHAPExplainer
 from core.counterfactuals import CounterfactualGenerator
+from export.json_export import export_results_to_json, save_results_json
+from export.csv_export import export_results_to_csv, save_results_csv
 
 class BiasGuardPro:
     def __init__(self, model_path: str = None):
@@ -71,6 +73,10 @@ class BiasGuardDashboard:
         print("🎨 Initializing BiasGuard Pro Dashboard...")
         self.analyzer = BiasGuardPro()
         self.analysis_history = []
+        # store last batch run results for exports
+        self.last_batch_results: List[Dict] = []
+        # simple in-memory job store for background batch jobs
+        self._jobs: Dict[str, Dict] = {}
         
         # Sample texts for quick testing
         self.sample_texts = [
@@ -396,6 +402,108 @@ class BiasGuardDashboard:
         </div>
         """
         return summary
+
+    # ------------------ Batch processing utilities ------------------
+    def analyze_batch(self, texts: List[str], progress_callback=None) -> List[Dict]:
+        """Analyze a list of texts and optionally report progress via callback.
+
+        progress_callback should accept two args: (processed_count, total_count)
+        """
+        results = []
+        total = len(texts)
+        # Prefer batched model inference where available
+        try:
+            # Use batched detector outputs (only probabilities); fall back to per-text analyzer for full outputs
+            batch_preds = self.analyzer.detector.predict_batch_batched([t for t in texts])
+            for i, (t, pred) in enumerate(zip(texts, batch_preds), 1):
+                # enrich with explanations via analyzer.analyze_text but only if needed
+                try:
+                    res = self.analyzer.analyze_text(t)
+                    # override the bias_probability with faster batched output to keep consistency
+                    res['bias_probability'] = pred.get('bias_probability', res.get('bias_probability'))
+                    res['bias_class'] = pred.get('classification', res.get('bias_class'))
+                    res['confidence'] = pred.get('confidence', res.get('confidence'))
+                except Exception:
+                    # If analyzer fails, fall back to aggregated pred
+                    res = {
+                        'text': t,
+                        'bias_probability': pred.get('bias_probability', 0.0),
+                        'bias_class': pred.get('classification', 'UNKNOWN'),
+                        'confidence': pred.get('confidence', 0.0),
+                        'top_biased_words': [],
+                        'shap_scores': [],
+                        'counterfactuals': [],
+                        'timestamp': time.time()
+                    }
+                results.append(res)
+
+                if progress_callback:
+                    try:
+                        progress_callback(i, total)
+                    except Exception:
+                        pass
+
+        except Exception:
+            # Fallback to slow per-item processing
+            for i, t in enumerate(texts, 1):
+                try:
+                    res = self.analyzer.analyze_text(t)
+                    results.append(res)
+                except Exception as e:
+                    results.append({
+                        'text': t,
+                        'error': str(e),
+                        'timestamp': time.time()
+                    })
+
+                if progress_callback:
+                    try:
+                        progress_callback(i, total)
+                    except Exception:
+                        pass
+
+        return results
+
+    def summarize_batch(self, results: List[Dict]) -> Dict[str, Any]:
+        """Produce summary statistics over batch results."""
+        total = len(results)
+        if total == 0:
+            return {}
+
+        bias_probs = [r.get('bias_probability', 0.0) for r in results if 'bias_probability' in r]
+        classes = {}
+        top_words = {}
+
+        for r in results:
+            cls = r.get('bias_class', 'UNKNOWN')
+            classes[cls] = classes.get(cls, 0) + 1
+            for w in r.get('top_biased_words', []):
+                top_words[w] = top_words.get(w, 0) + 1
+
+        avg_bias = sum(bias_probs) / len(bias_probs) if bias_probs else 0.0
+        return {
+            'total': total,
+            'avg_bias_probability': avg_bias,
+            'class_counts': classes,
+            'top_words_frequency': sorted(top_words.items(), key=lambda x: x[1], reverse=True)[:20]
+        }
+
+    def compare_groups(self, group_a: List[Dict], group_b: List[Dict]) -> Dict[str, Any]:
+        """Compare two groups of batch results and return simple comparative metrics."""
+        def stats(group):
+            probs = [r.get('bias_probability', 0.0) for r in group if 'bias_probability' in r]
+            avg = sum(probs) / len(probs) if probs else 0.0
+            return {'count': len(group), 'avg_bias': avg}
+
+        a_stats = stats(group_a)
+        b_stats = stats(group_b)
+
+        delta = a_stats['avg_bias'] - b_stats['avg_bias']
+        return {
+            'group_a': a_stats,
+            'group_b': b_stats,
+            'avg_bias_delta': delta
+        }
     
     def create_dashboard(self):
         """Create the enhanced Gradio dashboard with PROGRESSIVE DISCLOSURE"""
@@ -542,6 +650,193 @@ class BiasGuardDashboard:
                     with gr.TabItem("🔄 Alternatives"):
                         gr.Markdown("### Neutral Alternative Suggestions")
                         counterfactuals_display = gr.HTML(label="Counterfactual Recommendations")
+
+                    # TAB 4: Batch & Compare
+                    with gr.TabItem("📚 Batch & Compare"):
+                        with gr.Row():
+                            with gr.Column(scale=2):
+                                gr.Markdown("### 🧪 Batch Input")
+                                batch_textarea = gr.Textbox(
+                                    label="Paste multiple texts (one per line)",
+                                    lines=8,
+                                    placeholder="Enter one text per line or upload a file",
+                                    show_label=False
+                                )
+                                file_upload = gr.File(label="Upload .txt/.csv/.json file (optional)")
+                                group_a_select = gr.Textbox(label="Group A filter (optional, substring)", placeholder="e.g., 'female' - texts containing this go to group A")
+                                group_b_select = gr.Textbox(label="Group B filter (optional, substring)", placeholder="e.g., 'male' - texts containing this go to group B")
+                                run_batch_btn = gr.Button("🔁 Start Background Batch", variant="primary")
+                                refresh_status_btn = gr.Button("🔄 Refresh Job Status")
+                            with gr.Column(scale=1):
+                                gr.Markdown("### ⏳ Progress")
+                                progress_text = gr.Textbox(interactive=False, label="Progress")
+                                progress_bar = gr.Number(value=0, label="Percent Complete", precision=1)
+                                job_id_text = gr.Textbox(interactive=False, label="Job ID")
+                                gr.Markdown("### 📦 Export")
+                                export_json_btn = gr.Button("Export JSON")
+                                export_csv_btn = gr.Button("Export CSV")
+                                save_path = gr.Textbox(label="Save path (optional)", placeholder="e.g., ./export/results.json")
+                                export_download = gr.File(label="Download Export", interactive=False)
+                        gr.Markdown("### 🧾 Batch Summary")
+                        batch_summary_html = gr.HTML()
+                        comparison_html = gr.HTML()
+
+                # ... existing event handlers remain ...
+
+                # Batch handlers
+                def parse_uploaded_file(file_obj):
+                    if not file_obj:
+                        return []
+                    try:
+                        import os, io, csv, json
+                        fname = file_obj.name if hasattr(file_obj, 'name') else ''
+                        file_bytes = file_obj.read()
+                        text = file_bytes.decode('utf-8') if isinstance(file_bytes, (bytes, bytearray)) else str(file_bytes)
+                        if fname.endswith('.json'):
+                            data = json.loads(text)
+                            # Support either list of strings or list of objects with 'text'
+                            if isinstance(data, list):
+                                if all(isinstance(x, str) for x in data):
+                                    return data
+                                else:
+                                    return [str(x.get('text', '')) for x in data if isinstance(x, dict) and 'text' in x]
+                        elif fname.endswith('.csv'):
+                            rows = []
+                            reader = csv.DictReader(io.StringIO(text))
+                            for r in reader:
+                                if 'text' in r:
+                                    rows.append(r['text'])
+                                else:
+                                    rows.append(','.join(r.values()))
+                            return rows
+                        else:
+                            # treat as plain text with lines
+                            return [l for l in text.splitlines() if l.strip()]
+                    except Exception:
+                        return []
+
+                def run_batch_background(textarea_value, file_obj, group_a_filter, group_b_filter, save_path_val):
+                    # Build list of texts
+                    texts = [l.strip() for l in (textarea_value or '').splitlines() if l.strip()]
+                    uploaded = parse_uploaded_file(file_obj)
+                    if uploaded:
+                        texts.extend(uploaded)
+
+                    total = len(texts)
+                    if total == 0:
+                        return {progress_text: "No texts provided.", progress_bar: 0, job_id_text: "", batch_summary_html: "<div class='warning-box'>No texts provided for batch.</div>", comparison_html: ""}
+
+                    # Create job id
+                    job_id = f"job_{int(time.time()*1000)}"
+                    self._jobs[job_id] = {
+                        'status': 'queued',
+                        'total': total,
+                        'processed': 0,
+                        'results': [],
+                        'summary': None,
+                        'created_at': time.time()
+                    }
+
+                    # Launch background thread to process the batch
+                    import threading
+
+                    def _worker(jid, texts_local, ga_filter, gb_filter, save_path_local):
+                        def progress_cb(processed, total_count):
+                            self._jobs[jid]['processed'] = processed
+                            self._jobs[jid]['status'] = 'running' if processed < total_count else 'finalizing'
+
+                        try:
+                            results = self.analyze_batch(texts_local, progress_callback=progress_cb)
+                            self._jobs[jid]['results'] = results
+                            self._jobs[jid]['summary'] = self.summarize_batch(results)
+                            # Grouping
+                            group_a = []
+                            group_b = []
+                            if ga_filter:
+                                group_a = [r for r in results if ga_filter.lower() in r.get('text', '').lower()]
+                            if gb_filter:
+                                group_b = [r for r in results if gb_filter.lower() in r.get('text', '').lower()]
+                            if group_a and group_b:
+                                self._jobs[jid]['comparison'] = self.compare_groups(group_a, group_b)
+                            else:
+                                self._jobs[jid]['comparison'] = None
+
+                            # Save if requested
+                            if save_path_local:
+                                try:
+                                    if save_path_local.endswith('.json'):
+                                        save_results_json(save_path_local, results)
+                                    elif save_path_local.endswith('.csv'):
+                                        save_results_csv(save_path_local, results)
+                                    self._jobs[jid]['export_path'] = save_path_local
+                                except Exception as e:
+                                    self._jobs[jid]['export_error'] = str(e)
+
+                            self._jobs[jid]['status'] = 'completed'
+                        except Exception as e:
+                            self._jobs[jid]['status'] = 'failed'
+                            self._jobs[jid]['error'] = str(e)
+
+                    t = threading.Thread(target=_worker, args=(job_id, texts, group_a_filter, group_b_filter, save_path_val), daemon=True)
+                    t.start()
+
+                    return {progress_text: "Job queued", progress_bar: 0, job_id_text: job_id, batch_summary_html: "<div class='success-box'>Job started in background. Use Refresh Job Status.</div>", comparison_html: ""}
+
+                run_batch_btn.click(
+                    run_batch_background,
+                    inputs=[batch_textarea, file_upload, group_a_select, group_b_select, save_path],
+                    outputs=[progress_text, progress_bar, job_id_text, batch_summary_html, comparison_html]
+                )
+
+                def poll_job_status(job_id):
+                    if not job_id:
+                        return {progress_text: "No job id provided.", progress_bar: 0, batch_summary_html: "", comparison_html: ""}
+                    job = self._jobs.get(job_id)
+                    if not job:
+                        return {progress_text: "Job not found.", progress_bar: 0, batch_summary_html: "", comparison_html: ""}
+
+                    pct = round((job.get('processed', 0) / job.get('total', 1)) * 100, 1) if job.get('total') else 0
+                    summary_html = ""
+                    if job.get('summary'):
+                        s = job['summary']
+                        summary_html = f"<div class='success-box'><strong>Total:</strong> {s.get('total', 0)} &nbsp; <strong>Avg bias:</strong> {s.get('avg_bias_probability', 0.0):.3f}</div>"
+                        summary_html += "<div style='margin:8px 0;'><strong>Class counts:</strong><pre>" + json.dumps(s.get('class_counts', {}), indent=2) + "</pre></div>"
+                        summary_html += "<div style='margin:8px 0;'><strong>Top words:</strong><pre>" + json.dumps(s.get('top_words_frequency', []), indent=2) + "</pre></div>"
+
+                    compare_html = ""
+                    if job.get('comparison'):
+                        compare_html = f"<div class='explanation-section'><strong>Group comparison:</strong><pre>{json.dumps(job['comparison'], indent=2)}</pre></div>"
+
+                    status_text = job.get('status', 'unknown')
+                    return {progress_text: f"Status: {status_text}", progress_bar: pct, batch_summary_html: summary_html, comparison_html: compare_html}
+
+                refresh_status_btn.click(poll_job_status, inputs=[job_id_text], outputs=[progress_text, progress_bar, batch_summary_html, comparison_html])
+
+                def export_last_json():
+                    # Export last batch results to ./export and return file path
+                    try:
+                        if not self.last_batch_results:
+                            return None, "No batch results to export. Run a batch first."
+                        os.makedirs('./export', exist_ok=True)
+                        fname = f"./export/batch_results_{int(time.time())}.json"
+                        save_results_json(fname, self.last_batch_results)
+                        return fname, f"Saved JSON to {fname}"
+                    except Exception as e:
+                        return None, f"Failed to export JSON: {e}"
+
+                def export_last_csv():
+                    try:
+                        if not self.last_batch_results:
+                            return None, "No batch results to export. Run a batch first."
+                        os.makedirs('./export', exist_ok=True)
+                        fname = f"./export/batch_results_{int(time.time())}.csv"
+                        save_results_csv(fname, self.last_batch_results)
+                        return fname, f"Saved CSV to {fname}"
+                    except Exception as e:
+                        return None, f"Failed to export CSV: {e}"
+
+                export_json_btn.click(export_last_json, inputs=None, outputs=[export_download, progress_text])
+                export_csv_btn.click(export_last_csv, inputs=None, outputs=[export_download, progress_text])
                 
                 # LEVEL 3: Detailed metrics (collapsible, for experts)
                 with gr.Accordion("📈 Detailed Metrics", open=False):

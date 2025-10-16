@@ -44,3 +44,31 @@ class BiasDetector:
     def predict_batch(self, texts: List[str]) -> List[Dict]:
         """Predict bias for multiple texts"""
         return [self.predict_bias(text) for text in texts]
+
+    def predict_batch_batched(self, texts: List[str], batch_size: int = 8) -> List[Dict]:
+        """Predict bias for multiple texts using batched model inference for speed.
+
+        Returns the same dict per item as `predict_bias`.
+        """
+        results: List[Dict] = []
+        if not texts:
+            return results
+
+        # Process in batches
+        for i in range(0, len(texts), batch_size):
+            batch_texts = texts[i:i+batch_size]
+            inputs = self.tokenizer(batch_texts, return_tensors="pt", padding=True, truncation=True, max_length=256)
+            inputs = {k: v.to(self.device) for k, v in inputs.items()}
+            with torch.no_grad():
+                outputs = self.model(**inputs)
+                probs = torch.softmax(outputs.logits, dim=-1)
+
+            for j in range(len(batch_texts)):
+                bias_prob = probs[j, 1].item()
+                results.append({
+                    'bias_probability': bias_prob,
+                    'classification': 'BIASED' if bias_prob > 0.5 else 'NEUTRAL',
+                    'confidence': max(bias_prob, 1 - bias_prob)
+                })
+
+        return results
