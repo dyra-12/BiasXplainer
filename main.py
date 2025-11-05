@@ -667,45 +667,177 @@ class BiasGuardDashboard:
             background: white !important;
             color: #0f172a !important;
         }
-
-        .input-card .gr-row, .input-card .gr-box, .input-card .gr-container {
-            background: white !important;
-            color: #0f172a !important;
-        }
         
         /* Enhanced Batch Analysis Tab */
         .batch-analysis-card {
-            background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%) !important;
+            background: white !important;
             border-radius: 24px;
+            padding: 0px;
+        }
+        
+        .batch-header {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: 20px;
             padding: 32px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
-            border: 3px solid #93c5fd;
-            margin: 20px 0;
+            margin-bottom: 32px;
+            border: 2px solid #cbd5e1;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        
+        .batch-section {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 2px solid #cbd5e1;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+        }
+        
+        .batch-section:hover {
+            border-color: #94a3b8;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            transition: all 0.3s ease;
         }
         
         .upload-zone {
-            background: linear-gradient(135deg, #eff6ff, #dbeafe) !important;
-            border: 3px dashed #3b82f6 !important;
-            border-radius: 20px !important;
-            padding: 40px !important;
+            background: linear-gradient(135deg, #fafafa, #f5f5f5) !important;
+            border: 2px dashed #94a3b8 !important;
+            border-radius: 16px !important;
+            padding: 32px !important;
             text-align: center !important;
             transition: all 0.3s ease !important;
             cursor: pointer !important;
         }
         
         .upload-zone:hover {
-            background: linear-gradient(135deg, #dbeafe, #bfdbfe) !important;
-            border-color: #2563eb !important;
-            transform: scale(1.02) !important;
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe) !important;
+            border-color: #60a5fa !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15) !important;
         }
         
         .progress-card {
-            background: white;
-            border-radius: 20px;
+            background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
+            border-radius: 16px;
             padding: 24px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            border: 2px solid #e2e8f0;
-            margin-top: 16px;
+            border: 2px solid #cbd5e1;
+            margin-bottom: 16px;
+        }
+        
+        /* Batch Analysis Input Fields Styling */
+        #batch-tab .gr-box,
+        #batch-tab .gr-form,
+        #batch-tab input[type="number"],
+        #batch-tab input[type="text"],
+        #batch-tab textarea {
+            background: white !important;
+            border: 2px solid #cbd5e1 !important;
+            border-radius: 12px !important;
+            padding: 14px 16px !important;
+            font-size: 14px !important;
+            color: #1e293b !important;
+            font-weight: 500 !important;
+            transition: all 0.2s ease !important;
+        }
+        
+        #batch-tab input[type="number"]:focus,
+        #batch-tab input[type="text"]:focus,
+        #batch-tab textarea:focus {
+            background: white !important;
+            border-color: #7c3aed !important;
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1) !important;
+            outline: none !important;
+        }
+        
+        #batch-tab input[type="number"]:disabled,
+        #batch-tab input[type="text"]:disabled,
+        #batch-tab textarea:disabled {
+            background: #f8fafc !important;
+            color: #64748b !important;
+            border-color: #cbd5e1 !important;
+            cursor: not-allowed !important;
+            font-weight: 600 !important;
+        }
+        
+        #batch-tab input::placeholder,
+        #batch-tab textarea::placeholder {
+            color: #94a3b8 !important;
+            font-weight: 400 !important;
+        }
+        
+        #batch-tab label {
+            font-weight: 700 !important;
+            color: #1e293b !important;
+            font-size: 14px !important;
+            margin-bottom: 8px !important;
+            letter-spacing: 0.01em !important;
+        }
+        
+        #batch-tab .gr-file {
+            background: white !important;
+            border: 2px solid #cbd5e1 !important;
+            border-radius: 12px !important;
+            padding: 12px !important;
+        }
+        
+        /* Progress and Export Input Groups */
+        .progress-inputs,
+        .export-inputs {
+            background: #f8fafc;
+            border-radius: 14px;
+            padding: 20px;
+            border: 2px solid #cbd5e1;
+            margin-top: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        
+        .progress-inputs > *,
+        .export-inputs > * {
+            margin-bottom: 12px;
+        }
+        
+        .progress-inputs > *:last-child,
+        .export-inputs > *:last-child {
+            margin-bottom: 0;
+        }
+        
+        .export-section {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-radius: 16px;
+            padding: 20px;
+            border: 2px solid #fbbf24;
+        }
+        
+        .batch-input-section {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 24px;
+            border: 2px solid #cbd5e1;
+            margin-bottom: 20px;
+        }
+        
+        /* Section Headers in Batch Tab */
+        .batch-section-header {
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 16px;
+            border-left: 4px solid #7c3aed;
+            border: 2px solid #cbd5e1;
+            border-left: 4px solid #7c3aed;
+        }
+        
+        .batch-section-header h4 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 800;
+            color: #1e293b;
+        }
+        
+        .batch-section-header p {
+            margin: 4px 0 0 0;
+            font-size: 13px;
+            color: #64748b;
         }
         
         .legend-item {
@@ -897,20 +1029,6 @@ class BiasGuardDashboard:
                         </div>
                     </div>
                     """)
-                    
-                    gr.HTML("""
-                    <div style='background: linear-gradient(135deg, #3b82f6, #06b6d4); border-radius: 24px; padding: 28px; margin-top: 20px; box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);'>
-                        <h3 style='margin: 0 0 20px 0; font-size: 18px; font-weight: 800; color: white;'>📊 Platform Stats</h3>
-                        <div style='background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); border-radius: 16px; padding: 16px; margin-bottom: 12px;'>
-                            <p style='margin: 0; font-size: 36px; font-weight: 900; color: white;'>2.4K+</p>
-                            <p style='margin: 4px 0 0 0; font-size: 13px; color: rgba(255,255,255,0.9);'>Texts Analyzed</p>
-                        </div>
-                        <div style='background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); border-radius: 16px; padding: 16px;'>
-                            <p style='margin: 0; font-size: 36px; font-weight: 900; color: white;'>87%</p>
-                            <p style='margin: 4px 0 0 0; font-size: 13px; color: rgba(255,255,255,0.9);'>Accuracy Rate</p>
-                        </div>
-                    </div>
-                    """)
             
             # Scroll anchor for results
             results_anchor = gr.HTML("<div id='results-anchor'></div>", visible=False)
@@ -932,6 +1050,17 @@ class BiasGuardDashboard:
                 
                 with gr.Tabs() as tabs:
                     with gr.TabItem("📊 Word Impact", id="word-tab"):
+                        gr.HTML("""
+                        <div style='background: linear-gradient(135deg, #f8fafc, #f1f5f9); border-radius: 12px; padding: 16px 20px; margin-bottom: 16px; border-left: 4px solid #3b82f6;'>
+                            <div style='display: flex; align-items: center; gap: 10px;'>
+                                <span style='font-size: 24px;'>📊</span>
+                                <div>
+                                    <h4 style='margin: 0; font-size: 16px; font-weight: 800; color: #1e293b;'>Word Impact Analysis</h4>
+                                    <p style='margin: 4px 0 0 0; font-size: 13px; color: #64748b;'>SHAP values showing which words contribute most to bias detection</p>
+                                </div>
+                            </div>
+                        </div>
+                        """)
                         with gr.Row():
                             with gr.Column():
                                 shap_chart = gr.Plot(label="")
@@ -941,9 +1070,14 @@ class BiasGuardDashboard:
                     
                     with gr.TabItem("📝 Highlighted Text", id="text-tab"):
                         gr.HTML("""
-                        <div style='margin-bottom: 20px;'>
-                            <h4 style='font-size: 18px; font-weight: 700; color: #334155; margin: 0 0 8px 0;'>Original Text with Bias Indicators</h4>
-                            <p style='margin: 0; font-size: 14px; color: #64748b;'>Words are highlighted based on their contribution to bias</p>
+                        <div style='background: linear-gradient(135deg, #f8fafc, #f1f5f9); border-radius: 12px; padding: 16px 20px; margin-bottom: 16px; border-left: 4px solid #f59e0b;'>
+                            <div style='display: flex; align-items: center; gap: 10px;'>
+                                <span style='font-size: 24px;'>📝</span>
+                                <div>
+                                    <h4 style='margin: 0; font-size: 16px; font-weight: 800; color: #1e293b;'>Original Text with Bias Indicators</h4>
+                                    <p style='margin: 4px 0 0 0; font-size: 13px; color: #64748b;'>Words are highlighted based on their contribution to bias</p>
+                                </div>
+                            </div>
                         </div>
                         """)
                         highlighted_text = gr.HTML(label="")
@@ -961,9 +1095,14 @@ class BiasGuardDashboard:
                     
                     with gr.TabItem("🔄 Neutral Alternatives", id="alternatives-tab"):
                         gr.HTML("""
-                        <div style='margin-bottom: 20px;'>
-                            <h4 style='font-size: 18px; font-weight: 700; color: #334155; margin: 0 0 8px 0;'>AI-Generated Suggestions</h4>
-                            <p style='margin: 0; font-size: 14px; color: #64748b;'>Bias-free alternatives that maintain your core message</p>
+                        <div style='background: linear-gradient(135deg, #f8fafc, #f1f5f9); border-radius: 12px; padding: 16px 20px; margin-bottom: 16px; border-left: 4px solid #10b981;'>
+                            <div style='display: flex; align-items: center; gap: 10px;'>
+                                <span style='font-size: 24px;'>🔄</span>
+                                <div>
+                                    <h4 style='margin: 0; font-size: 16px; font-weight: 800; color: #1e293b;'>AI-Generated Suggestions</h4>
+                                    <p style='margin: 4px 0 0 0; font-size: 13px; color: #64748b;'>Bias-free alternatives that maintain your core message</p>
+                                </div>
+                            </div>
                         </div>
                         """)
                         counterfactuals_display = gr.HTML(label="")
@@ -983,48 +1122,65 @@ class BiasGuardDashboard:
                     
                     with gr.TabItem("📚 Batch Analysis", id="batch-tab", elem_classes="batch-analysis-card"):
                         gr.HTML("""
-                        <div style='margin-bottom: 24px; text-align: center;'>
-                            <div style='display: inline-block; background: linear-gradient(135deg, #7c3aed, #a855f7); padding: 12px 24px; border-radius: 16px; margin-bottom: 16px;'>
-                                <span style='font-size: 32px;'>📦</span>
+                        <div class='batch-header'>
+                            <div style='text-align: center;'>
+                                <div style='display: inline-flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #7c3aed, #a855f7); width: 64px; height: 64px; border-radius: 20px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);'>
+                                    <span style='font-size: 36px;'>📦</span>
+                                </div>
+                                <h3 style='font-size: 28px; font-weight: 900; color: #1e293b; margin: 0 0 8px 0;'>Batch Processing</h3>
+                                <p style='margin: 0; font-size: 15px; color: #64748b; font-weight: 500;'>Process multiple texts simultaneously and compare group statistics</p>
                             </div>
-                            <h3 style='font-size: 28px; font-weight: 900; color: #1e293b; margin: 0 0 8px 0;'>Batch Processing</h3>
-                            <p style='margin: 0; font-size: 15px; color: #64748b;'>Upload or paste multiple texts for simultaneous analysis</p>
                         </div>
                         """)
                         
                         with gr.Row():
                             with gr.Column(scale=2):
+                                # Input Section
+                                gr.HTML("""
+                                <div class='batch-section-header'>
+                                    <div style='display: flex; align-items: center; gap: 10px;'>
+                                        <span style='font-size: 24px;'>📝</span>
+                                        <div>
+                                            <h4 style='margin: 0; font-size: 16px; font-weight: 800; color: #1e293b;'>Text Input</h4>
+                                            <p style='margin: 4px 0 0 0; font-size: 13px; color: #64748b;'>Enter or paste your texts below (one per line)</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                """)
+                                
                                 batch_textarea = gr.Textbox(
-                                    label="📝 Enter Multiple Texts",
+                                    label="",
                                     lines=8,
                                     placeholder="Paste your texts here, one per line...\n\nExample:\nWomen are naturally better at nursing.\nMen excel in technical fields.\nThe female assistant was emotional.",
                                     elem_classes="batch-input"
                                 )
                                 
                                 gr.HTML("""
-                                <div style='margin: 20px 0; text-align: center;'>
-                                    <div style='display: inline-flex; align-items: center; gap: 12px; padding: 12px 24px; background: linear-gradient(135deg, #f0f9ff, #e0f2fe); border-radius: 16px; border: 2px solid #93c5fd;'>
+                                <div style='margin: 24px 0; padding: 16px; background: #f8fafc; border-radius: 12px; text-align: center; border: 2px dashed #94a3b8;'>
+                                    <div style='display: inline-flex; align-items: center; gap: 10px;'>
                                         <span style='font-size: 20px;'>📁</span>
-                                        <span style='font-weight: 700; color: #1e40af;'>OR Upload a File</span>
-                                        <span style='font-size: 20px;'>👇</span>
+                                        <span style='font-weight: 700; color: #64748b; font-size: 14px;'>OR UPLOAD A FILE</span>
+                                        <span style='font-size: 20px;'>↓</span>
                                     </div>
                                 </div>
                                 """)
                                 
-                                with gr.Row():
-                                    file_upload = gr.File(
-                                        label="📎 Upload File (.txt, .csv, .json)",
-                                        file_types=[".txt", ".csv", ".json"],
-                                        elem_classes="upload-zone"
-                                    )
+                                file_upload = gr.File(
+                                    label="",
+                                    file_types=[".txt", ".csv", ".json"],
+                                    elem_classes="upload-zone"
+                                )
                                 
+                                # Group Comparison Section
                                 gr.HTML("""
-                                <div style='margin: 24px 0 16px 0;'>
-                                    <h4 style='font-size: 16px; font-weight: 700; color: #334155; margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px;'>
-                                        <span style='font-size: 20px;'>🎯</span>
-                                        Group Comparison (Optional)
-                                    </h4>
-                                    <p style='margin: 0 0 12px 0; font-size: 13px; color: #64748b;'>Filter texts into groups for comparative analysis</p>
+                                <div class='batch-section-header' style='border-left-color: #f59e0b;'>
+                                    <div style='display: flex; align-items: center; gap: 10px;'>
+                                        <span style='font-size: 24px;'>🎯</span>
+                                        <div>
+                                            <h4 style='margin: 0; font-size: 16px; font-weight: 800; color: #1e293b;'>Group Comparison</h4>
+                                            <p style='margin: 4px 0 0 0; font-size: 13px; color: #64748b;'>Optional: Filter texts into groups for comparative analysis</p>
+                                        </div>
+                                    </div>
                                 </div>
                                 """)
                                 
@@ -1040,6 +1196,8 @@ class BiasGuardDashboard:
                                         scale=1
                                     )
                                 
+                                # Action Buttons
+                                gr.HTML("<div style='height: 20px;'></div>")
                                 with gr.Row():
                                     run_batch_btn = gr.Button(
                                         "🚀 Start Batch Processing",
@@ -1056,54 +1214,80 @@ class BiasGuardDashboard:
                                     )
                             
                             with gr.Column(scale=1):
+                                # Progress Monitor
                                 gr.HTML("""
-                                <div class='progress-card'>
-                                    <h4 style='font-size: 18px; font-weight: 700; color: #334155; margin: 0 0 16px 0; display: flex; align-items: center; gap: 8px;'>
+                                <div class='batch-section-header' style='border-left-color: #3b82f6; margin-bottom: 16px;'>
+                                    <div style='display: flex; align-items: center; gap: 10px;'>
                                         <span style='font-size: 24px;'>⏱️</span>
-                                        Progress Monitor
-                                    </h4>
+                                        <div>
+                                            <h4 style='font-size: 16px; font-weight: 800; color: #1e293b; margin: 0;'>Progress Monitor</h4>
+                                            <p style='margin: 4px 0 0 0; font-size: 13px; color: #64748b;'>Track your batch processing status in real-time</p>
+                                        </div>
+                                    </div>
                                 </div>
                                 """)
-                                progress_bar = gr.Number(
-                                    value=0,
-                                    label="📊 Completion %",
-                                    precision=1
-                                )
-                                progress_text = gr.Textbox(
-                                    interactive=False,
-                                    label="📡 Status",
-                                    value="Ready to process"
-                                )
-                                job_id_text = gr.Textbox(
-                                    interactive=False,
-                                    label="🆔 Job ID",
-                                    placeholder="Will appear after starting"
-                                )
                                 
-                                gr.HTML("<div style='margin: 20px 0; height: 2px; background: linear-gradient(90deg, #3b82f6, #a855f7, #ec4899); border-radius: 2px;'></div>")
+                                with gr.Group(elem_classes="progress-inputs"):
+                                    progress_bar = gr.Number(
+                                        value=0,
+                                        label="📊 Completion Percentage",
+                                        precision=1,
+                                        interactive=False
+                                    )
+                                    progress_text = gr.Textbox(
+                                        interactive=False,
+                                        label="📡 Current Status",
+                                        value="Ready to process"
+                                    )
+                                    job_id_text = gr.Textbox(
+                                        interactive=False,
+                                        label="🆔 Job ID",
+                                        placeholder="Will appear after starting"
+                                    )
                                 
+                                # Export Section
                                 gr.HTML("""
-                                <h4 style='font-size: 18px; font-weight: 700; color: #334155; margin: 20px 0 12px 0; display: flex; align-items: center; gap: 8px;'>
-                                    <span style='font-size: 24px;'>💾</span>
-                                    Export Results
-                                </h4>
+                                <div class='batch-section-header' style='border-left-color: #10b981; margin-top: 24px; margin-bottom: 16px;'>
+                                    <div style='display: flex; align-items: center; gap: 10px;'>
+                                        <span style='font-size: 24px;'>💾</span>
+                                        <div>
+                                            <h4 style='font-size: 16px; font-weight: 800; color: #1e293b; margin: 0;'>Export Results</h4>
+                                            <p style='margin: 4px 0 0 0; font-size: 13px; color: #64748b;'>Save your analysis results</p>
+                                        </div>
+                                    </div>
+                                </div>
                                 """)
-                                save_path = gr.Textbox(
-                                    label="📂 Save Path (optional)",
-                                    placeholder="./exports/results.json"
-                                )
-                                with gr.Row():
-                                    export_json_btn = gr.Button("📄 JSON", size="sm", elem_classes="secondary-btn")
-                                    export_csv_btn = gr.Button("📊 CSV", size="sm", elem_classes="secondary-btn")
-                                export_download = gr.File(
-                                    label="⬇️ Download",
-                                    interactive=False
-                                )
+                                
+                                with gr.Group(elem_classes="export-inputs"):
+                                    save_path = gr.Textbox(
+                                        label="📂 Save Path (optional)",
+                                        placeholder="./exports/results.json"
+                                    )
+                                    with gr.Row():
+                                        export_json_btn = gr.Button("📄 Export JSON", size="sm", elem_classes="secondary-btn")
+                                        export_csv_btn = gr.Button("📊 Export CSV", size="sm", elem_classes="secondary-btn")
+                                    export_download = gr.File(
+                                        label="⬇️ Download File",
+                                        interactive=False
+                                    )
                         
-                        gr.HTML("<div style='margin: 40px 0 16px 0;'><h4 style='font-size: 22px; font-weight: 900; color: #1e293b; margin: 0;'>📊 Batch Summary</h4></div>")
+                        # Results Section
+                        gr.HTML("""
+                        <div class='batch-section-header' style='border-left-color: #10b981; margin: 48px 0 20px 0;'>
+                            <div style='display: flex; align-items: center; gap: 10px;'>
+                                <span style='font-size: 28px;'>📊</span>
+                                <div>
+                                    <h4 style='font-size: 20px; font-weight: 900; color: #1e293b; margin: 0;'>Batch Summary & Results</h4>
+                                    <p style='margin: 4px 0 0 0; font-size: 13px; color: #64748b;'>Comprehensive analysis of all processed texts</p>
+                                </div>
+                            </div>
+                        </div>
+                        """)
                         batch_summary_html = gr.HTML()
                         comparison_html = gr.HTML()
             
+            # Loading and Error Display
+            loading_display = gr.HTML(visible=False)
             error_display = gr.HTML(visible=False)
             
             # Footer
@@ -1127,10 +1311,12 @@ class BiasGuardDashboard:
                 if not text.strip():
                     return {
                         results_section: gr.update(visible=False),
+                        loading_display: gr.update(visible=False),
                         error_display: gr.update(
                             value="<div style='padding: 24px; background: linear-gradient(135deg, #fef3c7, #fde68a); border-left: 5px solid #f59e0b; border-radius: 16px; margin: 20px 0;'><strong style='color: #92400e; font-size: 16px;'>⚠️ No Input:</strong> <span style='color: #78350f; font-size: 15px; margin-left: 8px;'>Please enter text to analyze.</span></div>",
                             visible=True
-                        )
+                        ),
+                        analyze_btn: gr.update(value="🔍 Analyze for Bias", interactive=True)
                     }
                 
                 result = self.analyze_text_for_dashboard(text)
@@ -1138,56 +1324,80 @@ class BiasGuardDashboard:
                 if "error" in result:
                     return {
                         results_section: gr.update(visible=False),
+                        loading_display: gr.update(visible=False),
                         error_display: gr.update(
                             value=f"<div style='padding: 24px; background: linear-gradient(135deg, #fee2e2, #fecaca); border-left: 5px solid #dc2626; border-radius: 16px; margin: 20px 0;'><strong style='color: #991b1b; font-size: 16px;'>❌ Error:</strong> <span style='color: #7f1d1d; font-size: 15px; margin-left: 8px;'>{result['error']}</span></div>",
                             visible=True
-                        )
+                        ),
+                        analyze_btn: gr.update(value="🔍 Analyze for Bias", interactive=True)
                     }
                 
-                # Auto-scroll to results
+                # Auto-scroll to results with improved targeting
                 scroll_js = """
                 <script>
                 setTimeout(function() {
-                    const resultsSection = document.querySelector('.results-section');
+                    // Try multiple selectors to find the results section
+                    const resultsSection = document.querySelector('.results-section') || 
+                                         document.querySelector('[class*="results-section"]') ||
+                                         document.getElementById('results-anchor');
                     if (resultsSection) {
                         resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        window.scrollBy(0, -20); // Add slight offset for better visibility
                     }
-                }, 500);
+                }, 600);
                 </script>
                 """
                 
                 return {
                     results_section: gr.update(visible=True),
+                    loading_display: gr.update(visible=False),
                     error_display: gr.update(visible=False),
                     bias_meter: result['bias_meter'],
                     shap_chart: result['shap_chart'],
                     highlighted_text: result['highlighted_text'],
                     summary_display: result['summary_html'] + scroll_js,
                     counterfactuals_display: result['counterfactuals_html'],
-                    top_words_display: result['top_words_html']
+                    top_words_display: result['top_words_html'],
+                    analyze_btn: gr.update(value="🔍 Analyze for Bias", interactive=True)
                 }
             
             def clear_inputs():
                 return ""
             
+            def scroll_to_results():
+                """Trigger scroll after results are displayed"""
+                return None
+            
+            # Connect analyze button with loading state
             analyze_btn.click(
+                lambda: gr.update(value="⏳ Analyzing...", interactive=False),
+                inputs=None,
+                outputs=[analyze_btn]
+            ).then(
                 update_display,
                 inputs=[text_input],
                 outputs=[
-                    results_section, error_display, bias_meter, shap_chart,
+                    results_section, loading_display, error_display, bias_meter, shap_chart,
                     highlighted_text, summary_display, counterfactuals_display,
-                    top_words_display
-                ]
+                    top_words_display, analyze_btn
+                ],
+                scroll_to_output=True
             )
             
+            # Connect text input submit with loading state
             text_input.submit(
+                lambda: gr.update(value="⏳ Analyzing...", interactive=False),
+                inputs=None,
+                outputs=[analyze_btn]
+            ).then(
                 update_display,
                 inputs=[text_input],
                 outputs=[
-                    results_section, error_display, bias_meter, shap_chart,
+                    results_section, loading_display, error_display, bias_meter, shap_chart,
                     highlighted_text, summary_display, counterfactuals_display,
-                    top_words_display
-                ]
+                    top_words_display, analyze_btn
+                ],
+                scroll_to_output=True
             )
             
             clear_btn.click(clear_inputs, outputs=[text_input])
