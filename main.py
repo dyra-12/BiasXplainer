@@ -40,20 +40,41 @@ class BiasGuardPro:
     
     def analyze_text(self, text: str) -> Dict:
         print(f"🔍 Analyzing: '{text}'")
-        bias_result = self.detector.predict_bias(text)
-        shap_results = self.explainer.get_shap_values(text)
+        timings = {}
+        t0 = time.perf_counter()
+
+        # Run bias prediction and SHAP explainer in parallel to overlap latency
+        from concurrent.futures import ThreadPoolExecutor
+        with ThreadPoolExecutor(max_workers=2) as exc:
+            fut_bias = exc.submit(self.detector.predict_bias, text)
+            fut_shap = exc.submit(self.explainer.get_shap_values, text)
+
+            t_start = time.perf_counter()
+            bias_result = fut_bias.result()
+            timings['predict_bias'] = time.perf_counter() - t_start
+
+            t_start = time.perf_counter()
+            shap_results = fut_shap.result()
+            timings['get_shap_values'] = time.perf_counter() - t_start
+
         print(f"   Top biased words: {[w for w, s in shap_results[:3]]}")
+
+        t_start = time.perf_counter()
         counterfactuals = self.counterfactuals.generate_counterfactuals(text, shap_results)
-        
+        timings['generate_counterfactuals'] = time.perf_counter() - t_start
+
+        timings['analyze_text_total'] = time.perf_counter() - t0
+
         return {
             'text': text,
-            'bias_probability': bias_result['bias_probability'],
-            'bias_class': bias_result['classification'],
-            'confidence': bias_result['confidence'],
+            'bias_probability': bias_result.get('bias_probability'),
+            'bias_class': bias_result.get('classification'),
+            'confidence': bias_result.get('confidence'),
             'top_biased_words': [w for w, s in shap_results[:3]],
             'shap_scores': shap_results[:10],
             'counterfactuals': counterfactuals,
-            'timestamp': time.time()
+            'timestamp': time.time(),
+            'timings': timings
         }
 
 
@@ -221,24 +242,39 @@ class BiasGuardDashboard:
         
         try:
             # Show progress
+            ui_timings = {}
             progress(0.2, desc="Detecting bias...")
+            t_sleep = time.perf_counter()
             time.sleep(0.3)
-            
+            ui_timings['progress_sleep_1'] = time.perf_counter() - t_sleep
+
             result = self.analyzer.analyze_text(text)
-            
+
             progress(0.6, desc="Analyzing word impact...")
+            t_sleep = time.perf_counter()
             time.sleep(0.3)
+            ui_timings['progress_sleep_2'] = time.perf_counter() - t_sleep
             
             self.analysis_history.append(result)
             if len(self.analysis_history) > 10:
                 self.analysis_history.pop(0)
             
             progress(0.8, desc="Generating alternatives...")
+            t_sleep = time.perf_counter()
             time.sleep(0.2)
-            
+            ui_timings['progress_sleep_3'] = time.perf_counter() - t_sleep
+
+            t_start = time.perf_counter()
             bias_meter = self.create_bias_meter(result['bias_probability'])
+            ui_timings['create_bias_meter'] = time.perf_counter() - t_start
+
+            t_start = time.perf_counter()
             shap_chart = self.create_shap_chart(result['shap_scores'])
+            ui_timings['create_shap_chart'] = time.perf_counter() - t_start
+
+            t_start = time.perf_counter()
             highlighted_text = self.highlight_biased_words(text, result['shap_scores'])
+            ui_timings['highlight_biased_words'] = time.perf_counter() - t_start
             
             # Create summary card with fixed font colors
             bias_level = "highly biased" if result['bias_probability'] > 0.7 else \
@@ -292,6 +328,7 @@ class BiasGuardDashboard:
             # Create counterfactuals HTML
             counterfactuals_html = "<div style='margin: 20px 0;'>"
             if result['counterfactuals']:
+                t_start = time.perf_counter()
                 for i, cf in enumerate(result['counterfactuals'], 1):
                     counterfactuals_html += f"""
                     <div style='margin: 20px 0; padding: 24px; background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border-left: 5px solid #10b981; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);'>
@@ -301,6 +338,7 @@ class BiasGuardDashboard:
                         <div style='font-size: 17px; color: #065f46; line-height: 1.7; font-weight: 500;'>{cf}</div>
                     </div>
                     """
+                ui_timings['build_counterfactuals_html'] = time.perf_counter() - t_start
             else:
                 counterfactuals_html += """
                 <div style='padding: 32px; background: #f8fafc; border-radius: 20px; text-align: center; border: 3px dashed #cbd5e1;'>
@@ -312,16 +350,43 @@ class BiasGuardDashboard:
             
             # Top words display
             top_words_html = "<div style='display: flex; flex-wrap: wrap; gap: 8px;'>"
+            t_start = time.perf_counter()
             for word in result['top_biased_words']:
                 top_words_html += f"""
                 <span style='padding: 8px 16px; background: linear-gradient(135deg, #fee2e2, #fecaca); color: #991b1b; border-radius: 12px; font-weight: 700; font-size: 14px; border: 2px solid #fca5a5;'>
                     "{word}"
                 </span>
                 """
+            ui_timings['build_top_words_html'] = time.perf_counter() - t_start
             top_words_html += "</div>" if result['top_biased_words'] else "<div style='color: #94a3b8; font-style: italic;'>None detected</div>"
             
             progress(1.0, desc="Complete!")
-            
+
+            # Merge analyzer timings and ui timings for a quick profile
+            profiler = {}
+            if isinstance(result, dict) and 'timings' in result:
+                profiler.update({f"analyzer.{k}": v for k, v in result['timings'].items()})
+            profiler.update({f"ui.{k}": v for k, v in ui_timings.items()})
+
+            # Print a sorted timing report to console
+            try:
+                sorted_times = sorted(profiler.items(), key=lambda x: x[1], reverse=True)
+                print("\n📈 Profiling report (descending):")
+                for name, dur in sorted_times:
+                    print(f" - {name}: {dur:.4f}s")
+            except Exception:
+                sorted_times = []
+
+            # Small HTML snippet to show top 5 timings in the UI
+            profiling_html = "<div style='margin-top:12px; padding: 12px; border-radius: 12px; background: #f8fafc; border: 2px solid #e2e8f0; font-size:13px;'>"
+            profiling_html += "<strong>⏱️ Timing Breakdown:</strong><br/>"
+            try:
+                for name, dur in sorted_times[:5]:
+                    profiling_html += f"<div style='display:flex; justify-content:space-between; gap:12px;'><span style='color:#334155;'>{name}</span><span style='font-weight:800;'>{dur:.3f}s</span></div>"
+            except Exception:
+                profiling_html += "<div>Profiling not available</div>"
+            profiling_html += "</div>"
+
             return {
                 "success": True,
                 "bias_meter": bias_meter,
@@ -331,7 +396,9 @@ class BiasGuardDashboard:
                 "counterfactuals_html": counterfactuals_html,
                 "top_words_html": top_words_html,
                 "bias_probability": result['bias_probability'],
-                "bias_class": result['bias_class']
+                "bias_class": result['bias_class'],
+                "profiling_html": profiling_html,
+                "profiling_data": profiler
             }
             
         except Exception as e:

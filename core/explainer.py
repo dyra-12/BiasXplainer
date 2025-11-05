@@ -14,10 +14,16 @@ class SHAPExplainer:
             if isinstance(texts, str):
                 texts = [texts]
             texts = [str(t) for t in texts]
-            
-            # Use the bias detector's probability
-            results = [self.detector.predict_bias(text) for text in texts]
-            return np.array([[result['bias_probability']] for result in results])
+
+            # Use the bias detector's batched prediction for better throughput
+            try:
+                # Use a larger batch size to reduce per-call overhead during SHAP sampling
+                preds = self.detector.predict_batch_batched(texts, batch_size=32)
+                return np.array([[p.get('bias_probability', 0.0)] for p in preds])
+            except Exception:
+                # Fallback to single predictions if batching fails
+                results = [self.detector.predict_bias(text) for text in texts]
+                return np.array([[result['bias_probability']] for result in results])
 
         self.model_predict = model_predict
 
