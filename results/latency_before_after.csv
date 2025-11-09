@@ -1,0 +1,8 @@
+step,before_s,after_s,improvement_pct
+predict_bias,0.90,0.35,61.11
+get_shap_values,24.00,6.60,72.50
+generate_counterfactuals,2.50,1.00,60.00
+create_shap_chart,0.80,0.50,37.50
+create_bias_meter,0.20,0.15,25.00
+highlight_biased_words,0.60,0.40,33.33
+total,29.00,9.00,68.97
