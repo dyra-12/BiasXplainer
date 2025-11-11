@@ -1,34 +1,51 @@
+import json
 import os
+import re
+import time
+from typing import Any, Dict, List
+
 import gradio as gr
 import pandas as pd
 import plotly.graph_objects as go
-import time
-import json
-from typing import Dict, List, Any
-import re
 
 from core.bias_detector import BiasDetector
-from core.explainer import SHAPExplainer
 from core.counterfactuals import CounterfactualGenerator
-from export.json_export import export_results_to_json, save_results_json
+from core.explainer import SHAPExplainer
 from export.csv_export import export_results_to_csv, save_results_csv
+from export.json_export import export_results_to_json, save_results_json
+
 
 class BiasGuardPro:
     def __init__(self, model_path: str = None):
+        """High-level analyzer that wires detector, explainer and counterfactuals.
+
+        This class exposes the main `analyze_text` method used by the UI and
+        batch runner. It auto-detects a model path when none is provided and
+        initializes the core components.
+
+        Args:
+            model_path: Optional path or model id. If None, will attempt to
+                auto-detect local model artifacts.
+        """
         print("🚀 Initializing BiasGuard Pro...")
-        
+
         if model_path is None:
             model_path = self._auto_detect_model_path()
-        
+
         print(f"📁 Using model path: {model_path}")
         self.detector = BiasDetector(model_path)
         self.explainer = SHAPExplainer(model_path)
         self.counterfactuals = CounterfactualGenerator()
         print("✅ BiasGuard Pro initialized successfully!\n")
-    
+
     def _auto_detect_model_path(self) -> str:
-        possible_paths = ['.', './models', './model']
-        model_extensions = ('.safetensors', '.bin', '.json')
+        """Attempt to find local model artifacts and return a suitable path.
+
+        Returns a model path to use with the underlying detector. If no
+        local files are found the default transformer identifier is returned.
+        """
+        possible_paths = [".", "./models", "./model"]
+        model_extensions = (".safetensors", ".bin", ".json")
         for path in possible_paths:
             if os.path.exists(path):
                 files = os.listdir(path)
@@ -37,64 +54,90 @@ class BiasGuardPro:
                     return path
         print("⚠️  No local model files found. Using default model...")
         return "distilbert-base-uncased"
-    
+
     def analyze_text(self, text: str) -> Dict:
+        """Analyze a single text for bias.
+
+        Runs prediction, SHAP explanation and counterfactual generation and
+        returns a dictionary with results and lightweight profiling timings.
+
+        Args:
+            text: Input string to analyze.
+
+        Returns:
+            Dict containing analysis results such as 'bias_probability',
+            'shap_scores', 'counterfactuals' and 'timings'.
+        """
         print(f"🔍 Analyzing: '{text}'")
         timings = {}
         t0 = time.perf_counter()
 
         # Run bias prediction and SHAP explainer in parallel to overlap latency
         from concurrent.futures import ThreadPoolExecutor
+
         with ThreadPoolExecutor(max_workers=2) as exc:
             fut_bias = exc.submit(self.detector.predict_bias, text)
             fut_shap = exc.submit(self.explainer.get_shap_values, text)
 
             t_start = time.perf_counter()
             bias_result = fut_bias.result()
-            timings['predict_bias'] = time.perf_counter() - t_start
+            timings["predict_bias"] = time.perf_counter() - t_start
 
             t_start = time.perf_counter()
             shap_results = fut_shap.result()
-            timings['get_shap_values'] = time.perf_counter() - t_start
+            timings["get_shap_values"] = time.perf_counter() - t_start
 
         print(f"   Top biased words: {[w for w, s in shap_results[:3]]}")
 
         t_start = time.perf_counter()
-        counterfactuals = self.counterfactuals.generate_counterfactuals(text, shap_results)
-        timings['generate_counterfactuals'] = time.perf_counter() - t_start
+        counterfactuals = self.counterfactuals.generate_counterfactuals(
+            text, shap_results
+        )
+        timings["generate_counterfactuals"] = time.perf_counter() - t_start
 
-        timings['analyze_text_total'] = time.perf_counter() - t0
+        timings["analyze_text_total"] = time.perf_counter() - t0
 
         return {
-            'text': text,
-            'bias_probability': bias_result.get('bias_probability'),
-            'bias_class': bias_result.get('classification'),
-            'confidence': bias_result.get('confidence'),
-            'top_biased_words': [w for w, s in shap_results[:3]],
-            'shap_scores': shap_results[:10],
-            'counterfactuals': counterfactuals,
-            'timestamp': time.time(),
-            'timings': timings
+            "text": text,
+            "bias_probability": bias_result.get("bias_probability"),
+            "bias_class": bias_result.get("classification"),
+            "confidence": bias_result.get("confidence"),
+            "top_biased_words": [w for w, s in shap_results[:3]],
+            "shap_scores": shap_results[:10],
+            "counterfactuals": counterfactuals,
+            "timestamp": time.time(),
+            "timings": timings,
         }
 
 
 class BiasGuardDashboard:
     def __init__(self):
+        """Create the dashboard wrapper that builds a Gradio UI around the
+        BiasGuardPro analyzer and provides helpers for batch processing.
+        """
         print("🎨 Initializing BiasGuard Pro Dashboard...")
         self.analyzer = BiasGuardPro()
         self.analysis_history = []
         self.last_batch_results: List[Dict] = []
         self._jobs: Dict[str, Dict] = {}
-        
+
         self.sample_texts = [
             "Women should be nurses because they are compassionate.",
             "Men are naturally better at engineering roles.",
             "The female secretary was very emotional today.",
         ]
-        
+
         print("✅ Dashboard initialized successfully!")
-    
+
     def create_bias_meter(self, bias_prob: float) -> go.Figure:
+        """Render a Plotly gauge indicating bias severity.
+
+        Args:
+            bias_prob: Float in [0,1] representing bias probability.
+
+        Returns:
+            Plotly Figure for embedding in the Gradio UI.
+        """
         if bias_prob > 0.7:
             bias_color = "#dc2626"
             bias_label = "HIGH BIAS"
@@ -104,113 +147,145 @@ class BiasGuardDashboard:
         else:
             bias_color = "#10b981"
             bias_label = "LOW BIAS"
-        
-        fig = go.Figure(go.Indicator(
-            mode = "gauge+number",
-            value = bias_prob,
-            domain = {'x': [0, 1], 'y': [0, 1]},
-            title = {'text': f"<b>{bias_label}</b>", 'font': {'size': 26, 'color': bias_color}},
-            number = {'font': {'size': 52, 'color': bias_color}, 'valueformat': '.2f'},
-            gauge = {
-                'axis': {'range': [0, 1], 'tickwidth': 2, 'tickcolor': "#e5e7eb", 'tickfont': {'size': 14}},
-                'bar': {'color': bias_color, 'thickness': 0.75},
-                'bgcolor': "white",
-                'borderwidth': 3,
-                'bordercolor': "#e5e7eb",
-                'steps': [
-                    {'range': [0, 0.4], 'color': '#d1fae5'},
-                    {'range': [0.4, 0.7], 'color': '#fef3c7'},
-                    {'range': [0.7, 1], 'color': '#fee2e2'}
-                ],
-                'threshold': {
-                    'line': {'color': bias_color, 'width': 5},
-                    'thickness': 0.8,
-                    'value': bias_prob
-                }
-            }
-        ))
-        
+
+        fig = go.Figure(
+            go.Indicator(
+                mode="gauge+number",
+                value=bias_prob,
+                domain={"x": [0, 1], "y": [0, 1]},
+                title={
+                    "text": f"<b>{bias_label}</b>",
+                    "font": {"size": 26, "color": bias_color},
+                },
+                number={
+                    "font": {"size": 52, "color": bias_color},
+                    "valueformat": ".2f",
+                },
+                gauge={
+                    "axis": {
+                        "range": [0, 1],
+                        "tickwidth": 2,
+                        "tickcolor": "#e5e7eb",
+                        "tickfont": {"size": 14},
+                    },
+                    "bar": {"color": bias_color, "thickness": 0.75},
+                    "bgcolor": "white",
+                    "borderwidth": 3,
+                    "bordercolor": "#e5e7eb",
+                    "steps": [
+                        {"range": [0, 0.4], "color": "#d1fae5"},
+                        {"range": [0.4, 0.7], "color": "#fef3c7"},
+                        {"range": [0.7, 1], "color": "#fee2e2"},
+                    ],
+                    "threshold": {
+                        "line": {"color": bias_color, "width": 5},
+                        "thickness": 0.8,
+                        "value": bias_prob,
+                    },
+                },
+            )
+        )
+
         fig.update_layout(
             height=350,
             margin=dict(l=20, r=20, t=80, b=20),
-            paper_bgcolor='white',
-            plot_bgcolor='white',
-            font={'family': 'Inter, system-ui, sans-serif', 'size': 14}
+            paper_bgcolor="white",
+            plot_bgcolor="white",
+            font={"family": "Inter, system-ui, sans-serif", "size": 14},
         )
         return fig
-    
+
     def create_shap_chart(self, shap_scores: List) -> go.Figure:
+        """Create a horizontal bar chart visualizing SHAP word impacts.
+
+        Args:
+            shap_scores: List of (word, score) tuples.
+
+        Returns:
+            Plotly Figure to show in the Word Impact tab.
+        """
         if not shap_scores:
             fig = go.Figure()
             fig.add_annotation(
                 text="<b>No significant biased words detected</b>",
-                xref="paper", yref="paper",
-                x=0.5, y=0.5, xanchor='center', yanchor='middle',
-                showarrow=False, font=dict(size=18, color='#64748b')
+                xref="paper",
+                yref="paper",
+                x=0.5,
+                y=0.5,
+                xanchor="center",
+                yanchor="middle",
+                showarrow=False,
+                font=dict(size=18, color="#64748b"),
             )
-            fig.update_layout(height=400, paper_bgcolor='white', plot_bgcolor='white')
+            fig.update_layout(height=400, paper_bgcolor="white", plot_bgcolor="white")
             return fig
-            
+
         words = [word for word, score in shap_scores[:8]]
         scores = [score for word, score in shap_scores[:8]]
-        
-        colors = ['#dc2626' if s > 0.1 else '#f59e0b' if s > 0 else '#10b981' for s in scores]
-        
-        fig = go.Figure(go.Bar(
-            x=scores,
-            y=words,
-            orientation='h',
-            marker=dict(
-                color=colors,
-                line=dict(width=0)
-            ),
-            hovertemplate='<b>%{y}</b><br>Impact: %{x:.3f}<extra></extra>'
-        ))
-        
+
+        colors = [
+            "#dc2626" if s > 0.1 else "#f59e0b" if s > 0 else "#10b981" for s in scores
+        ]
+
+        fig = go.Figure(
+            go.Bar(
+                x=scores,
+                y=words,
+                orientation="h",
+                marker=dict(color=colors, line=dict(width=0)),
+                hovertemplate="<b>%{y}</b><br>Impact: %{x:.3f}<extra></extra>",
+            )
+        )
+
         fig.update_layout(
             title={
-                'text': "<b>Word Impact Analysis</b>",
-                'x': 0.5,
-                'xanchor': 'center',
-                'font': {'size': 20, 'color': '#1e293b'}
+                "text": "<b>Word Impact Analysis</b>",
+                "x": 0.5,
+                "xanchor": "center",
+                "font": {"size": 20, "color": "#1e293b"},
             },
             xaxis=dict(
                 title="<b>SHAP Score</b>",
                 showgrid=True,
                 gridwidth=1,
-                gridcolor='#f1f5f9',
+                gridcolor="#f1f5f9",
                 zeroline=True,
                 zerolinewidth=2,
-                zerolinecolor='#cbd5e1'
+                zerolinecolor="#cbd5e1",
             ),
-            yaxis=dict(
-                title="",
-                showgrid=False
-            ),
+            yaxis=dict(title="", showgrid=False),
             height=400,
             showlegend=False,
-            plot_bgcolor='white',
-            paper_bgcolor='white',
+            plot_bgcolor="white",
+            paper_bgcolor="white",
             margin=dict(l=120, r=30, t=60, b=50),
-            font={'family': 'Inter, system-ui, sans-serif', 'size': 14}
+            font={"family": "Inter, system-ui, sans-serif", "size": 14},
         )
-        
+
         return fig
-    
+
     def highlight_biased_words(self, text: str, shap_scores: List) -> str:
+        """Return an HTML string with biased words highlighted.
+
+        Highlights are based on the absolute SHAP score and colored according
+        to impact (high/medium/low). If no scores are present the original
+        text is returned inside a styled container.
+        """
         if not shap_scores:
             return f"""
             <div style='padding: 24px; background: white; border-radius: 16px; border: 2px solid #e2e8f0; font-size: 16px; line-height: 1.8; color: #334155;'>
                 {text}
             </div>
             """
-        
-        word_scores = {word.lower(): abs(score) for word, score in shap_scores if score > 0}
+
+        word_scores = {
+            word.lower(): abs(score) for word, score in shap_scores if score > 0
+        }
         words = text.split()
         highlighted_words = []
-        
+
         for word in words:
-            clean_word = re.sub(r'[^\w]', '', word.lower())
+            clean_word = re.sub(r"[^\w]", "", word.lower())
             if clean_word in word_scores:
                 score = word_scores[clean_word]
                 if score > 0.15:
@@ -222,70 +297,85 @@ class BiasGuardDashboard:
                 else:
                     color = "#fbbf24"
                     label = "Low"
-                
+
                 highlighted_words.append(
                     f"<mark style='background: {color}; color: white; padding: 4px 10px; border-radius: 8px; font-weight: 600; margin: 0 2px;' title='{label} impact'>{word}</mark>"
                 )
             else:
                 highlighted_words.append(word)
-        
+
         highlighted_text = " ".join(highlighted_words)
         return f"""
         <div style='padding: 28px; background: white; border-radius: 20px; border: 2px solid #e2e8f0; font-size: 17px; line-height: 2; color: #1e293b; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);'>
             {highlighted_text}
         </div>
         """
-    
-    def analyze_text_for_dashboard(self, text: str, progress=gr.Progress()) -> Dict[str, Any]:
+
+    def analyze_text_for_dashboard(
+        self, text: str, progress=gr.Progress()
+    ) -> Dict[str, Any]:
+        """Wrapper used by the Gradio UI to show progress and return UI pieces.
+
+        This method calls the analyzer and then builds figures/HTML snippets
+        used in the dashboard. It accepts a Gradio Progress object to report
+        staged progress to the front-end.
+        """
         if not text.strip():
             return {"error": "Please enter text to analyze"}
-        
+
         try:
             # Show progress
             ui_timings = {}
             progress(0.2, desc="Detecting bias...")
             t_sleep = time.perf_counter()
             time.sleep(0.3)
-            ui_timings['progress_sleep_1'] = time.perf_counter() - t_sleep
+            ui_timings["progress_sleep_1"] = time.perf_counter() - t_sleep
 
             result = self.analyzer.analyze_text(text)
 
             progress(0.6, desc="Analyzing word impact...")
             t_sleep = time.perf_counter()
             time.sleep(0.3)
-            ui_timings['progress_sleep_2'] = time.perf_counter() - t_sleep
-            
+            ui_timings["progress_sleep_2"] = time.perf_counter() - t_sleep
+
             self.analysis_history.append(result)
             if len(self.analysis_history) > 10:
                 self.analysis_history.pop(0)
-            
+
             progress(0.8, desc="Generating alternatives...")
             t_sleep = time.perf_counter()
             time.sleep(0.2)
-            ui_timings['progress_sleep_3'] = time.perf_counter() - t_sleep
+            ui_timings["progress_sleep_3"] = time.perf_counter() - t_sleep
 
             t_start = time.perf_counter()
-            bias_meter = self.create_bias_meter(result['bias_probability'])
-            ui_timings['create_bias_meter'] = time.perf_counter() - t_start
+            bias_meter = self.create_bias_meter(result["bias_probability"])
+            ui_timings["create_bias_meter"] = time.perf_counter() - t_start
 
             t_start = time.perf_counter()
-            shap_chart = self.create_shap_chart(result['shap_scores'])
-            ui_timings['create_shap_chart'] = time.perf_counter() - t_start
+            shap_chart = self.create_shap_chart(result["shap_scores"])
+            ui_timings["create_shap_chart"] = time.perf_counter() - t_start
 
             t_start = time.perf_counter()
-            highlighted_text = self.highlight_biased_words(text, result['shap_scores'])
-            ui_timings['highlight_biased_words'] = time.perf_counter() - t_start
-            
+            highlighted_text = self.highlight_biased_words(text, result["shap_scores"])
+            ui_timings["highlight_biased_words"] = time.perf_counter() - t_start
+
             # Create summary card with fixed font colors
-            bias_level = "highly biased" if result['bias_probability'] > 0.7 else \
-                       "moderately biased" if result['bias_probability'] > 0.4 else "relatively neutral"
-            
-            if result['bias_probability'] > 0.7:
+            bias_level = (
+                "highly biased"
+                if result["bias_probability"] > 0.7
+                else (
+                    "moderately biased"
+                    if result["bias_probability"] > 0.4
+                    else "relatively neutral"
+                )
+            )
+
+            if result["bias_probability"] > 0.7:
                 summary_gradient = "linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)"
                 border_color = "#fca5a5"
                 text_color = "#991b1b"
                 emoji = "🚨"
-            elif result['bias_probability'] > 0.4:
+            elif result["bias_probability"] > 0.4:
                 summary_gradient = "linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)"
                 border_color = "#fcd34d"
                 text_color = "#92400e"
@@ -295,7 +385,7 @@ class BiasGuardDashboard:
                 border_color = "#6ee7b7"
                 text_color = "#065f46"
                 emoji = "✅"
-            
+
             summary_html = f"""
             <div style='padding: 32px; background: {summary_gradient}; border-radius: 24px; border: 3px solid {border_color}; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);'>
                 <div style='display: flex; align-items: center; gap: 16px; margin-bottom: 20px;'>
@@ -324,12 +414,12 @@ class BiasGuardDashboard:
                 </div>
             </div>
             """
-            
+
             # Create counterfactuals HTML
             counterfactuals_html = "<div style='margin: 20px 0;'>"
-            if result['counterfactuals']:
+            if result["counterfactuals"]:
                 t_start = time.perf_counter()
-                for i, cf in enumerate(result['counterfactuals'], 1):
+                for i, cf in enumerate(result["counterfactuals"], 1):
                     counterfactuals_html += f"""
                     <div style='margin: 20px 0; padding: 24px; background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border-left: 5px solid #10b981; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);'>
                         <div style='font-size: 13px; color: #047857; font-weight: 700; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em;'>
@@ -338,7 +428,7 @@ class BiasGuardDashboard:
                         <div style='font-size: 17px; color: #065f46; line-height: 1.7; font-weight: 500;'>{cf}</div>
                     </div>
                     """
-                ui_timings['build_counterfactuals_html'] = time.perf_counter() - t_start
+                ui_timings["build_counterfactuals_html"] = time.perf_counter() - t_start
             else:
                 counterfactuals_html += """
                 <div style='padding: 32px; background: #f8fafc; border-radius: 20px; text-align: center; border: 3px dashed #cbd5e1;'>
@@ -347,30 +437,38 @@ class BiasGuardDashboard:
                 </div>
                 """
             counterfactuals_html += "</div>"
-            
+
             # Top words display
             top_words_html = "<div style='display: flex; flex-wrap: wrap; gap: 8px;'>"
             t_start = time.perf_counter()
-            for word in result['top_biased_words']:
+            for word in result["top_biased_words"]:
                 top_words_html += f"""
                 <span style='padding: 8px 16px; background: linear-gradient(135deg, #fee2e2, #fecaca); color: #991b1b; border-radius: 12px; font-weight: 700; font-size: 14px; border: 2px solid #fca5a5;'>
                     "{word}"
                 </span>
                 """
-            ui_timings['build_top_words_html'] = time.perf_counter() - t_start
-            top_words_html += "</div>" if result['top_biased_words'] else "<div style='color: #94a3b8; font-style: italic;'>None detected</div>"
-            
+            ui_timings["build_top_words_html"] = time.perf_counter() - t_start
+            top_words_html += (
+                "</div>"
+                if result["top_biased_words"]
+                else "<div style='color: #94a3b8; font-style: italic;'>None detected</div>"
+            )
+
             progress(1.0, desc="Complete!")
 
             # Merge analyzer timings and ui timings for a quick profile
             profiler = {}
-            if isinstance(result, dict) and 'timings' in result:
-                profiler.update({f"analyzer.{k}": v for k, v in result['timings'].items()})
+            if isinstance(result, dict) and "timings" in result:
+                profiler.update(
+                    {f"analyzer.{k}": v for k, v in result["timings"].items()}
+                )
             profiler.update({f"ui.{k}": v for k, v in ui_timings.items()})
 
             # Print a sorted timing report to console
             try:
-                sorted_times = sorted(profiler.items(), key=lambda x: x[1], reverse=True)
+                sorted_times = sorted(
+                    profiler.items(), key=lambda x: x[1], reverse=True
+                )
                 print("\n📈 Profiling report (descending):")
                 for name, dur in sorted_times:
                     print(f" - {name}: {dur:.4f}s")
@@ -395,16 +493,21 @@ class BiasGuardDashboard:
                 "summary_html": summary_html,
                 "counterfactuals_html": counterfactuals_html,
                 "top_words_html": top_words_html,
-                "bias_probability": result['bias_probability'],
-                "bias_class": result['bias_class'],
+                "bias_probability": result["bias_probability"],
+                "bias_class": result["bias_class"],
                 "profiling_html": profiling_html,
-                "profiling_data": profiler
+                "profiling_data": profiler,
             }
-            
+
         except Exception as e:
             return {"error": f"Analysis failed: {str(e)}"}
-    
+
     def create_dashboard(self):
+        """Build and return the Gradio Blocks dashboard instance.
+
+        This method constructs the entire UI and wires handlers. It returns
+        the Gradio `Blocks` instance which can be launched by the caller.
+        """
         custom_css = """
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
@@ -907,11 +1010,14 @@ class BiasGuardDashboard:
             100% { transform: rotate(360deg); }
         }
         """
-        
-        with gr.Blocks(css=custom_css, title="BiasGuard Pro", theme=gr.themes.Default()) as demo:
-            
+
+        with gr.Blocks(
+            css=custom_css, title="BiasGuard Pro", theme=gr.themes.Default()
+        ) as demo:
+
             # Header
-            gr.HTML("""
+            gr.HTML(
+                """
             <div class='main-header'>
                 <div style='position: relative; z-index: 1;'>
                     <div style='display: flex; align-items: center; gap: 20px; margin-bottom: 12px;'>
@@ -929,13 +1035,15 @@ class BiasGuardDashboard:
                     </div>
                 </div>
             </div>
-            """)
-            
+            """
+            )
+
             with gr.Row(equal_height=False):
                 # Main Content Area (Left)
                 with gr.Column(scale=2):
                     with gr.Group(elem_classes="input-card"):
-                        gr.HTML("""
+                        gr.HTML(
+                            """
                         <div style='margin-bottom: 20px;'>
                             <div style='display: flex; align-items: center; gap: 12px; margin-bottom: 8px;'>
                                 <div style='background: linear-gradient(135deg, #3b82f6, #06b6d4); padding: 10px; border-radius: 12px;'>
@@ -945,52 +1053,56 @@ class BiasGuardDashboard:
                             </div>
                             <p style='margin: 0; color: #64748b; font-size: 14px;'>Enter or paste text to detect gender bias</p>
                         </div>
-                        """)
-                        
+                        """
+                        )
+
                         text_input = gr.Textbox(
                             label="",
                             placeholder="Example: 'Women should be nurses because they are compassionate and caring...'",
                             lines=6,
                             max_lines=10,
-                            show_label=False
+                            show_label=False,
                         )
-                        
-                        gr.HTML("<div style='margin: 20px 0 12px 0; font-size: 13px; font-weight: 700; color: #475569;'>💡 Quick Examples:</div>")
+
+                        gr.HTML(
+                            "<div style='margin: 20px 0 12px 0; font-size: 13px; font-weight: 700; color: #475569;'>💡 Quick Examples:</div>"
+                        )
                         with gr.Row():
                             sample_btn_1 = gr.Button(
                                 self.sample_texts[0],
                                 size="sm",
-                                elem_classes="sample-btn"
+                                elem_classes="sample-btn",
                             )
                             sample_btn_2 = gr.Button(
                                 self.sample_texts[1],
                                 size="sm",
-                                elem_classes="sample-btn"
+                                elem_classes="sample-btn",
                             )
                             sample_btn_3 = gr.Button(
                                 self.sample_texts[2],
                                 size="sm",
-                                elem_classes="sample-btn"
+                                elem_classes="sample-btn",
                             )
-                        
+
                         with gr.Row():
                             analyze_btn = gr.Button(
                                 "🔍 Analyze for Bias",
                                 variant="primary",
                                 size="lg",
                                 elem_classes="primary-btn",
-                                scale=3
+                                scale=3,
                             )
                             clear_btn = gr.Button(
-                                "Clear", 
+                                "Clear",
                                 size="lg",
                                 elem_classes="secondary-btn",
-                                scale=1
+                                scale=1,
                             )
-                
+
                 # Sidebar (Right)
                 with gr.Column(scale=1):
-                    gr.HTML("""
+                    gr.HTML(
+                        """
                     <div class='info-card'>
                         <div style='display: flex; align-items: center; gap: 12px; margin-bottom: 20px;'>
                             <span style='font-size: 32px;'>⚡</span>
@@ -1028,29 +1140,37 @@ class BiasGuardDashboard:
                             </p>
                         </div>
                     </div>
-                    """)
-            
+                    """
+                    )
+
             # Scroll anchor for results
             results_anchor = gr.HTML("<div id='results-anchor'></div>", visible=False)
-            
+
             # Results Section
-            with gr.Column(visible=False, elem_classes="results-section") as results_section:
-                gr.HTML("<div style='margin: 32px 0 24px 0;'><h2 style='font-size: 32px; font-weight: 900; color: #1e293b; margin: 0;'>📊 Analysis Results</h2></div>")
-                
+            with gr.Column(
+                visible=False, elem_classes="results-section"
+            ) as results_section:
+                gr.HTML(
+                    "<div style='margin: 32px 0 24px 0;'><h2 style='font-size: 32px; font-weight: 900; color: #1e293b; margin: 0;'>📊 Analysis Results</h2></div>"
+                )
+
                 # Summary and Bias Meter Row
                 with gr.Row(equal_height=False):
                     with gr.Column(scale=1):
                         bias_meter = gr.Plot(label="")
-                    
+
                     with gr.Column(scale=2):
                         summary_display = gr.HTML(label="")
-                
+
                 # Detailed Analysis Tabs
-                gr.HTML("<div style='margin: 32px 0 16px 0;'><h3 style='font-size: 24px; font-weight: 800; color: #1e293b; margin: 0;'>🔍 Detailed Analysis</h3></div>")
-                
+                gr.HTML(
+                    "<div style='margin: 32px 0 16px 0;'><h3 style='font-size: 24px; font-weight: 800; color: #1e293b; margin: 0;'>🔍 Detailed Analysis</h3></div>"
+                )
+
                 with gr.Tabs() as tabs:
                     with gr.TabItem("📊 Word Impact", id="word-tab"):
-                        gr.HTML("""
+                        gr.HTML(
+                            """
                         <div style='background: linear-gradient(135deg, #f8fafc, #f1f5f9); border-radius: 12px; padding: 16px 20px; margin-bottom: 16px; border-left: 4px solid #3b82f6;'>
                             <div style='display: flex; align-items: center; gap: 10px;'>
                                 <span style='font-size: 24px;'>📊</span>
@@ -1060,16 +1180,20 @@ class BiasGuardDashboard:
                                 </div>
                             </div>
                         </div>
-                        """)
+                        """
+                        )
                         with gr.Row():
                             with gr.Column():
                                 shap_chart = gr.Plot(label="")
-                        
-                        gr.HTML("<div style='margin: 24px 0 12px 0;'><h4 style='font-size: 18px; font-weight: 700; color: #334155; margin: 0;'>🎯 Key Biased Terms</h4></div>")
+
+                        gr.HTML(
+                            "<div style='margin: 24px 0 12px 0;'><h4 style='font-size: 18px; font-weight: 700; color: #334155; margin: 0;'>🎯 Key Biased Terms</h4></div>"
+                        )
                         top_words_display = gr.HTML(label="")
-                    
+
                     with gr.TabItem("📝 Highlighted Text", id="text-tab"):
-                        gr.HTML("""
+                        gr.HTML(
+                            """
                         <div style='background: linear-gradient(135deg, #f8fafc, #f1f5f9); border-radius: 12px; padding: 16px 20px; margin-bottom: 16px; border-left: 4px solid #f59e0b;'>
                             <div style='display: flex; align-items: center; gap: 10px;'>
                                 <span style='font-size: 24px;'>📝</span>
@@ -1079,10 +1203,12 @@ class BiasGuardDashboard:
                                 </div>
                             </div>
                         </div>
-                        """)
+                        """
+                        )
                         highlighted_text = gr.HTML(label="")
-                        
-                        gr.HTML("""
+
+                        gr.HTML(
+                            """
                         <div style='margin-top: 24px; padding: 20px; background: linear-gradient(135deg, #eff6ff, #dbeafe); border-radius: 16px; border-left: 5px solid #3b82f6;'>
                             <strong style='color: #1e40af; font-size: 15px; display: block; margin-bottom: 12px;'>Legend:</strong>
                             <div style='display: flex; flex-wrap: wrap; gap: 12px;'>
@@ -1091,10 +1217,12 @@ class BiasGuardDashboard:
                                 <span class='legend-item' style='background: #fbbf24; color: white;'>Low Impact</span>
                             </div>
                         </div>
-                        """)
-                    
+                        """
+                        )
+
                     with gr.TabItem("🔄 Neutral Alternatives", id="alternatives-tab"):
-                        gr.HTML("""
+                        gr.HTML(
+                            """
                         <div style='background: linear-gradient(135deg, #f8fafc, #f1f5f9); border-radius: 12px; padding: 16px 20px; margin-bottom: 16px; border-left: 4px solid #10b981;'>
                             <div style='display: flex; align-items: center; gap: 10px;'>
                                 <span style='font-size: 24px;'>🔄</span>
@@ -1104,10 +1232,12 @@ class BiasGuardDashboard:
                                 </div>
                             </div>
                         </div>
-                        """)
+                        """
+                        )
                         counterfactuals_display = gr.HTML(label="")
-                        
-                        gr.HTML("""
+
+                        gr.HTML(
+                            """
                         <div style='margin-top: 24px; padding: 24px; background: linear-gradient(135deg, #e0f2fe, #bae6fd); border-radius: 20px; border-left: 5px solid #0284c7;'>
                             <strong style='color: #075985; font-size: 16px; display: flex; align-items: center; gap: 8px; margin-bottom: 8px;'>
                                 <span style='font-size: 24px;'>💡</span>
@@ -1118,10 +1248,16 @@ class BiasGuardDashboard:
                                 Use them to create more inclusive career recommendations.
                             </p>
                         </div>
-                        """)
-                    
-                    with gr.TabItem("📚 Batch Analysis", id="batch-tab", elem_classes="batch-analysis-card"):
-                        gr.HTML("""
+                        """
+                        )
+
+                    with gr.TabItem(
+                        "📚 Batch Analysis",
+                        id="batch-tab",
+                        elem_classes="batch-analysis-card",
+                    ):
+                        gr.HTML(
+                            """
                         <div class='batch-header'>
                             <div style='text-align: center;'>
                                 <div style='display: inline-flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #7c3aed, #a855f7); width: 64px; height: 64px; border-radius: 20px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);'>
@@ -1131,12 +1267,14 @@ class BiasGuardDashboard:
                                 <p style='margin: 0; font-size: 15px; color: #64748b; font-weight: 500;'>Process multiple texts simultaneously and compare group statistics</p>
                             </div>
                         </div>
-                        """)
-                        
+                        """
+                        )
+
                         with gr.Row():
                             with gr.Column(scale=2):
                                 # Input Section
-                                gr.HTML("""
+                                gr.HTML(
+                                    """
                                 <div class='batch-section-header'>
                                     <div style='display: flex; align-items: center; gap: 10px;'>
                                         <span style='font-size: 24px;'>📝</span>
@@ -1146,16 +1284,18 @@ class BiasGuardDashboard:
                                         </div>
                                     </div>
                                 </div>
-                                """)
-                                
+                                """
+                                )
+
                                 batch_textarea = gr.Textbox(
                                     label="",
                                     lines=8,
                                     placeholder="Paste your texts here, one per line...\n\nExample:\nWomen are naturally better at nursing.\nMen excel in technical fields.\nThe female assistant was emotional.",
-                                    elem_classes="batch-input"
+                                    elem_classes="batch-input",
                                 )
-                                
-                                gr.HTML("""
+
+                                gr.HTML(
+                                    """
                                 <div style='margin: 24px 0; padding: 16px; background: #f8fafc; border-radius: 12px; text-align: center; border: 2px dashed #94a3b8;'>
                                     <div style='display: inline-flex; align-items: center; gap: 10px;'>
                                         <span style='font-size: 20px;'>📁</span>
@@ -1163,16 +1303,18 @@ class BiasGuardDashboard:
                                         <span style='font-size: 20px;'>↓</span>
                                     </div>
                                 </div>
-                                """)
-                                
+                                """
+                                )
+
                                 file_upload = gr.File(
                                     label="",
                                     file_types=[".txt", ".csv", ".json"],
-                                    elem_classes="upload-zone"
+                                    elem_classes="upload-zone",
                                 )
-                                
+
                                 # Group Comparison Section
-                                gr.HTML("""
+                                gr.HTML(
+                                    """
                                 <div class='batch-section-header' style='border-left-color: #f59e0b;'>
                                     <div style='display: flex; align-items: center; gap: 10px;'>
                                         <span style='font-size: 24px;'>🎯</span>
@@ -1182,20 +1324,21 @@ class BiasGuardDashboard:
                                         </div>
                                     </div>
                                 </div>
-                                """)
-                                
+                                """
+                                )
+
                                 with gr.Row():
                                     group_a_select = gr.Textbox(
                                         label="🔵 Group A Filter",
                                         placeholder="e.g., 'female' or 'women'",
-                                        scale=1
+                                        scale=1,
                                     )
                                     group_b_select = gr.Textbox(
                                         label="🔴 Group B Filter",
                                         placeholder="e.g., 'male' or 'men'",
-                                        scale=1
+                                        scale=1,
                                     )
-                                
+
                                 # Action Buttons
                                 gr.HTML("<div style='height: 20px;'></div>")
                                 with gr.Row():
@@ -1204,18 +1347,19 @@ class BiasGuardDashboard:
                                         variant="primary",
                                         size="lg",
                                         elem_classes="primary-btn",
-                                        scale=2
+                                        scale=2,
                                     )
                                     refresh_status_btn = gr.Button(
                                         "🔄 Refresh Status",
                                         size="lg",
                                         elem_classes="secondary-btn",
-                                        scale=1
+                                        scale=1,
                                     )
-                            
+
                             with gr.Column(scale=1):
                                 # Progress Monitor
-                                gr.HTML("""
+                                gr.HTML(
+                                    """
                                 <div class='batch-section-header' style='border-left-color: #3b82f6; margin-bottom: 16px;'>
                                     <div style='display: flex; align-items: center; gap: 10px;'>
                                         <span style='font-size: 24px;'>⏱️</span>
@@ -1225,28 +1369,30 @@ class BiasGuardDashboard:
                                         </div>
                                     </div>
                                 </div>
-                                """)
-                                
+                                """
+                                )
+
                                 with gr.Group(elem_classes="progress-inputs"):
                                     progress_bar = gr.Number(
                                         value=0,
                                         label="📊 Completion Percentage",
                                         precision=1,
-                                        interactive=False
+                                        interactive=False,
                                     )
                                     progress_text = gr.Textbox(
                                         interactive=False,
                                         label="📡 Current Status",
-                                        value="Ready to process"
+                                        value="Ready to process",
                                     )
                                     job_id_text = gr.Textbox(
                                         interactive=False,
                                         label="🆔 Job ID",
-                                        placeholder="Will appear after starting"
+                                        placeholder="Will appear after starting",
                                     )
-                                
+
                                 # Export Section
-                                gr.HTML("""
+                                gr.HTML(
+                                    """
                                 <div class='batch-section-header' style='border-left-color: #10b981; margin-top: 24px; margin-bottom: 16px;'>
                                     <div style='display: flex; align-items: center; gap: 10px;'>
                                         <span style='font-size: 24px;'>💾</span>
@@ -1256,23 +1402,32 @@ class BiasGuardDashboard:
                                         </div>
                                     </div>
                                 </div>
-                                """)
-                                
+                                """
+                                )
+
                                 with gr.Group(elem_classes="export-inputs"):
                                     save_path = gr.Textbox(
                                         label="📂 Save Path (optional)",
-                                        placeholder="./exports/results.json"
+                                        placeholder="./exports/results.json",
                                     )
                                     with gr.Row():
-                                        export_json_btn = gr.Button("📄 Export JSON", size="sm", elem_classes="secondary-btn")
-                                        export_csv_btn = gr.Button("📊 Export CSV", size="sm", elem_classes="secondary-btn")
+                                        export_json_btn = gr.Button(
+                                            "📄 Export JSON",
+                                            size="sm",
+                                            elem_classes="secondary-btn",
+                                        )
+                                        export_csv_btn = gr.Button(
+                                            "📊 Export CSV",
+                                            size="sm",
+                                            elem_classes="secondary-btn",
+                                        )
                                     export_download = gr.File(
-                                        label="⬇️ Download File",
-                                        interactive=False
+                                        label="⬇️ Download File", interactive=False
                                     )
-                        
+
                         # Results Section
-                        gr.HTML("""
+                        gr.HTML(
+                            """
                         <div class='batch-section-header' style='border-left-color: #10b981; margin: 48px 0 20px 0;'>
                             <div style='display: flex; align-items: center; gap: 10px;'>
                                 <span style='font-size: 28px;'>📊</span>
@@ -1282,16 +1437,18 @@ class BiasGuardDashboard:
                                 </div>
                             </div>
                         </div>
-                        """)
+                        """
+                        )
                         batch_summary_html = gr.HTML()
                         comparison_html = gr.HTML()
-            
+
             # Loading and Error Display
             loading_display = gr.HTML(visible=False)
             error_display = gr.HTML(visible=False)
-            
+
             # Footer
-            gr.HTML("""
+            gr.HTML(
+                """
             <div class='footer'>
                 <h4 style='margin: 0 0 12px 0; color: #1e293b; font-size: 20px; font-weight: 800;'>BiasGuard Pro v1.0</h4>
                 <p style='margin: 0 0 20px 0; color: #64748b; font-size: 15px;'>
@@ -1304,34 +1461,45 @@ class BiasGuardDashboard:
                     <a href='#'>🤝 Contribute</a>
                 </div>
             </div>
-            """)
-            
+            """
+            )
+
             # Event Handlers
             def update_display(text):
+                """UI event handler: analyze input and update dashboard components.
+
+                This inner function is bound to the analyze button and returns a
+                mapping of outputs expected by Gradio. It performs input checks
+                and delegates to `analyze_text_for_dashboard` for the heavy work.
+                """
                 if not text.strip():
                     return {
                         results_section: gr.update(visible=False),
                         loading_display: gr.update(visible=False),
                         error_display: gr.update(
                             value="<div style='padding: 24px; background: linear-gradient(135deg, #fef3c7, #fde68a); border-left: 5px solid #f59e0b; border-radius: 16px; margin: 20px 0;'><strong style='color: #92400e; font-size: 16px;'>⚠️ No Input:</strong> <span style='color: #78350f; font-size: 15px; margin-left: 8px;'>Please enter text to analyze.</span></div>",
-                            visible=True
+                            visible=True,
                         ),
-                        analyze_btn: gr.update(value="🔍 Analyze for Bias", interactive=True)
+                        analyze_btn: gr.update(
+                            value="🔍 Analyze for Bias", interactive=True
+                        ),
                     }
-                
+
                 result = self.analyze_text_for_dashboard(text)
-                
+
                 if "error" in result:
                     return {
                         results_section: gr.update(visible=False),
                         loading_display: gr.update(visible=False),
                         error_display: gr.update(
                             value=f"<div style='padding: 24px; background: linear-gradient(135deg, #fee2e2, #fecaca); border-left: 5px solid #dc2626; border-radius: 16px; margin: 20px 0;'><strong style='color: #991b1b; font-size: 16px;'>❌ Error:</strong> <span style='color: #7f1d1d; font-size: 15px; margin-left: 8px;'>{result['error']}</span></div>",
-                            visible=True
+                            visible=True,
                         ),
-                        analyze_btn: gr.update(value="🔍 Analyze for Bias", interactive=True)
+                        analyze_btn: gr.update(
+                            value="🔍 Analyze for Bias", interactive=True
+                        ),
                     }
-                
+
                 # Auto-scroll to results with improved targeting
                 scroll_js = """
                 <script>
@@ -1347,103 +1515,153 @@ class BiasGuardDashboard:
                 }, 600);
                 </script>
                 """
-                
+
                 return {
                     results_section: gr.update(visible=True),
                     loading_display: gr.update(visible=False),
                     error_display: gr.update(visible=False),
-                    bias_meter: result['bias_meter'],
-                    shap_chart: result['shap_chart'],
-                    highlighted_text: result['highlighted_text'],
-                    summary_display: result['summary_html'] + scroll_js,
-                    counterfactuals_display: result['counterfactuals_html'],
-                    top_words_display: result['top_words_html'],
-                    analyze_btn: gr.update(value="🔍 Analyze for Bias", interactive=True)
+                    bias_meter: result["bias_meter"],
+                    shap_chart: result["shap_chart"],
+                    highlighted_text: result["highlighted_text"],
+                    summary_display: result["summary_html"] + scroll_js,
+                    counterfactuals_display: result["counterfactuals_html"],
+                    top_words_display: result["top_words_html"],
+                    analyze_btn: gr.update(
+                        value="🔍 Analyze for Bias", interactive=True
+                    ),
                 }
-            
+
             def clear_inputs():
+                """Simple helper to clear the main text input (connected to Clear button)."""
                 return ""
-            
+
             def scroll_to_results():
-                """Trigger scroll after results are displayed"""
+                """Trigger scroll after results are displayed.
+
+                This placeholder exists so Gradio `.then()` can call a final
+                function that performs client-side scrolling. Returns None to
+                indicate no payload is required.
+                """
                 return None
-            
+
             # Connect analyze button with loading state
             analyze_btn.click(
                 lambda: gr.update(value="⏳ Analyzing...", interactive=False),
                 inputs=None,
-                outputs=[analyze_btn]
+                outputs=[analyze_btn],
             ).then(
                 update_display,
                 inputs=[text_input],
                 outputs=[
-                    results_section, loading_display, error_display, bias_meter, shap_chart,
-                    highlighted_text, summary_display, counterfactuals_display,
-                    top_words_display, analyze_btn
+                    results_section,
+                    loading_display,
+                    error_display,
+                    bias_meter,
+                    shap_chart,
+                    highlighted_text,
+                    summary_display,
+                    counterfactuals_display,
+                    top_words_display,
+                    analyze_btn,
                 ],
-                scroll_to_output=True
+                scroll_to_output=True,
             )
-            
+
             # Connect text input submit with loading state
             text_input.submit(
                 lambda: gr.update(value="⏳ Analyzing...", interactive=False),
                 inputs=None,
-                outputs=[analyze_btn]
+                outputs=[analyze_btn],
             ).then(
                 update_display,
                 inputs=[text_input],
                 outputs=[
-                    results_section, loading_display, error_display, bias_meter, shap_chart,
-                    highlighted_text, summary_display, counterfactuals_display,
-                    top_words_display, analyze_btn
+                    results_section,
+                    loading_display,
+                    error_display,
+                    bias_meter,
+                    shap_chart,
+                    highlighted_text,
+                    summary_display,
+                    counterfactuals_display,
+                    top_words_display,
+                    analyze_btn,
                 ],
-                scroll_to_output=True
+                scroll_to_output=True,
             )
-            
+
             clear_btn.click(clear_inputs, outputs=[text_input])
-            
+
             # Connect sample buttons
             sample_btn_1.click(lambda: self.sample_texts[0], outputs=text_input)
             sample_btn_2.click(lambda: self.sample_texts[1], outputs=text_input)
             sample_btn_3.click(lambda: self.sample_texts[2], outputs=text_input)
-            
+
             # Batch processing handlers
             def parse_uploaded_file(file_obj):
+                """Attempt to parse a user-uploaded file into a list of texts.
+
+                Supports plain text (.txt), CSV with a 'text' column and simple
+                JSON lists or lists of objects with a 'text' field. Returns an
+                empty list on failure.
+                """
                 if not file_obj:
                     return []
                 try:
-                    import csv, json, io
-                    fname = file_obj.name if hasattr(file_obj, 'name') else ''
+                    import csv
+                    import io
+                    import json
+
+                    fname = file_obj.name if hasattr(file_obj, "name") else ""
                     file_bytes = file_obj.read()
-                    text = file_bytes.decode('utf-8') if isinstance(file_bytes, (bytes, bytearray)) else str(file_bytes)
-                    
-                    if fname.endswith('.json'):
+                    text = (
+                        file_bytes.decode("utf-8")
+                        if isinstance(file_bytes, (bytes, bytearray))
+                        else str(file_bytes)
+                    )
+
+                    if fname.endswith(".json"):
                         data = json.loads(text)
                         if isinstance(data, list):
                             if all(isinstance(x, str) for x in data):
                                 return data
                             else:
-                                return [str(x.get('text', '')) for x in data if isinstance(x, dict) and 'text' in x]
-                    elif fname.endswith('.csv'):
+                                return [
+                                    str(x.get("text", ""))
+                                    for x in data
+                                    if isinstance(x, dict) and "text" in x
+                                ]
+                    elif fname.endswith(".csv"):
                         rows = []
                         reader = csv.DictReader(io.StringIO(text))
                         for r in reader:
-                            if 'text' in r:
-                                rows.append(r['text'])
+                            if "text" in r:
+                                rows.append(r["text"])
                             else:
-                                rows.append(','.join(r.values()))
+                                rows.append(",".join(r.values()))
                         return rows
                     else:
                         return [l for l in text.splitlines() if l.strip()]
                 except Exception:
                     return []
-            
-            def run_batch_background(textarea_value, file_obj, group_a_filter, group_b_filter, save_path_val):
-                texts = [l.strip() for l in (textarea_value or '').splitlines() if l.strip()]
+
+            def run_batch_background(
+                textarea_value, file_obj, group_a_filter, group_b_filter, save_path_val
+            ):
+                """Kick off a background thread to analyze a batch of texts.
+
+                This function prepares the inputs, registers a job id and starts a
+                daemon thread that runs `analyze_batch`. It returns immediate UI
+                state (job id and initial messages) while processing continues
+                in the background.
+                """
+                texts = [
+                    l.strip() for l in (textarea_value or "").splitlines() if l.strip()
+                ]
                 uploaded = parse_uploaded_file(file_obj)
                 if uploaded:
                     texts.extend(uploaded)
-                
+
                 total = len(texts)
                 if total == 0:
                     return {
@@ -1451,86 +1669,135 @@ class BiasGuardDashboard:
                         progress_bar: 0,
                         job_id_text: "",
                         batch_summary_html: "<div style='padding: 24px; background: linear-gradient(135deg, #fef3c7, #fde68a); border-left: 5px solid #f59e0b; border-radius: 16px;'><strong style='font-size: 16px; color: #92400e;'>⚠️ Warning:</strong> <span style='color: #78350f; margin-left: 8px;'>No texts provided for batch processing.</span></div>",
-                        comparison_html: ""
+                        comparison_html: "",
                     }
-                
+
                 job_id = f"job_{int(time.time()*1000)}"
                 self._jobs[job_id] = {
-                    'status': 'queued',
-                    'total': total,
-                    'processed': 0,
-                    'results': [],
-                    'summary': None,
-                    'created_at': time.time()
+                    "status": "queued",
+                    "total": total,
+                    "processed": 0,
+                    "results": [],
+                    "summary": None,
+                    "created_at": time.time(),
                 }
-                
+
                 import threading
-                
+
                 def _worker(jid, texts_local, ga_filter, gb_filter, save_path_local):
                     def progress_cb(processed, total_count):
-                        self._jobs[jid]['processed'] = processed
-                        self._jobs[jid]['status'] = 'running' if processed < total_count else 'finalizing'
-                    
+                        self._jobs[jid]["processed"] = processed
+                        self._jobs[jid]["status"] = (
+                            "running" if processed < total_count else "finalizing"
+                        )
+
                     try:
-                        results = self.analyze_batch(texts_local, progress_callback=progress_cb)
-                        self._jobs[jid]['results'] = results
+                        results = self.analyze_batch(
+                            texts_local, progress_callback=progress_cb
+                        )
+                        self._jobs[jid]["results"] = results
                         self.last_batch_results = results
-                        self._jobs[jid]['summary'] = self.summarize_batch(results)
-                        
+                        self._jobs[jid]["summary"] = self.summarize_batch(results)
+
                         group_a = []
                         group_b = []
                         if ga_filter:
-                            group_a = [r for r in results if ga_filter.lower() in r.get('text', '').lower()]
+                            group_a = [
+                                r
+                                for r in results
+                                if ga_filter.lower() in r.get("text", "").lower()
+                            ]
                         if gb_filter:
-                            group_b = [r for r in results if gb_filter.lower() in r.get('text', '').lower()]
+                            group_b = [
+                                r
+                                for r in results
+                                if gb_filter.lower() in r.get("text", "").lower()
+                            ]
                         if group_a and group_b:
-                            self._jobs[jid]['comparison'] = self.compare_groups(group_a, group_b)
+                            self._jobs[jid]["comparison"] = self.compare_groups(
+                                group_a, group_b
+                            )
                         else:
-                            self._jobs[jid]['comparison'] = None
-                        
+                            self._jobs[jid]["comparison"] = None
+
                         if save_path_local:
                             try:
-                                if save_path_local.endswith('.json'):
+                                if save_path_local.endswith(".json"):
                                     save_results_json(save_path_local, results)
-                                elif save_path_local.endswith('.csv'):
+                                elif save_path_local.endswith(".csv"):
                                     save_results_csv(save_path_local, results)
-                                self._jobs[jid]['export_path'] = save_path_local
+                                self._jobs[jid]["export_path"] = save_path_local
                             except Exception as e:
-                                self._jobs[jid]['export_error'] = str(e)
-                        
-                        self._jobs[jid]['status'] = 'completed'
+                                self._jobs[jid]["export_error"] = str(e)
+
+                        self._jobs[jid]["status"] = "completed"
                     except Exception as e:
-                        self._jobs[jid]['status'] = 'failed'
-                        self._jobs[jid]['error'] = str(e)
-                
-                t = threading.Thread(target=_worker, args=(job_id, texts, group_a_filter, group_b_filter, save_path_val), daemon=True)
+                        self._jobs[jid]["status"] = "failed"
+                        self._jobs[jid]["error"] = str(e)
+
+                t = threading.Thread(
+                    target=_worker,
+                    args=(job_id, texts, group_a_filter, group_b_filter, save_path_val),
+                    daemon=True,
+                )
                 t.start()
-                
+
                 return {
                     progress_text: "🚀 Job queued successfully",
                     progress_bar: 0,
                     job_id_text: job_id,
                     batch_summary_html: "<div style='padding: 24px; background: linear-gradient(135deg, #d1fae5, #a7f3d0); border-left: 5px solid #10b981; border-radius: 16px;'><strong style='font-size: 16px; color: #065f46;'>✅ Success:</strong> <span style='color: #047857; margin-left: 8px;'>Batch job started. Use 'Refresh Status' to check progress.</span></div>",
-                    comparison_html: ""
+                    comparison_html: "",
                 }
-            
+
             run_batch_btn.click(
                 run_batch_background,
-                inputs=[batch_textarea, file_upload, group_a_select, group_b_select, save_path],
-                outputs=[progress_text, progress_bar, job_id_text, batch_summary_html, comparison_html]
+                inputs=[
+                    batch_textarea,
+                    file_upload,
+                    group_a_select,
+                    group_b_select,
+                    save_path,
+                ],
+                outputs=[
+                    progress_text,
+                    progress_bar,
+                    job_id_text,
+                    batch_summary_html,
+                    comparison_html,
+                ],
             )
-            
+
             def poll_job_status(job_id):
+                """Return current status and summary HTML for a background job.
+
+                The function reads the job registry and formats an HTML summary
+                and comparison block (if available) for display in the UI.
+                """
                 if not job_id:
-                    return {progress_text: "⚠️ No job ID", progress_bar: 0, batch_summary_html: "", comparison_html: ""}
+                    return {
+                        progress_text: "⚠️ No job ID",
+                        progress_bar: 0,
+                        batch_summary_html: "",
+                        comparison_html: "",
+                    }
                 job = self._jobs.get(job_id)
                 if not job:
-                    return {progress_text: "❌ Job not found", progress_bar: 0, batch_summary_html: "", comparison_html: ""}
-                
-                pct = round((job.get('processed', 0) / job.get('total', 1)) * 100, 1) if job.get('total') else 0
+                    return {
+                        progress_text: "❌ Job not found",
+                        progress_bar: 0,
+                        batch_summary_html: "",
+                        comparison_html: "",
+                    }
+
+                pct = (
+                    round((job.get("processed", 0) / job.get("total", 1)) * 100, 1)
+                    if job.get("total")
+                    else 0
+                )
                 summary_html = ""
-                if job.get('summary'):
-                    s = job['summary']
+                if job.get("summary"):
+                    s = job["summary"]
                     summary_html = f"""
                     <div style='padding: 28px; background: white; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border: 2px solid #e2e8f0; margin-top: 20px;'>
                         <h4 style='margin: 0 0 20px 0; font-size: 20px; font-weight: 800; color: #1e293b;'>📊 Summary Statistics</h4>
@@ -1550,77 +1817,122 @@ class BiasGuardDashboard:
                         </div>
                     </div>
                     """
-                
+
                 compare_html = ""
-                if job.get('comparison'):
-                    c = job['comparison']
+                if job.get("comparison"):
+                    c = job["comparison"]
                     compare_html = f"""
                     <div style='padding: 28px; background: white; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border: 2px solid #e2e8f0; margin-top: 20px;'>
                         <h4 style='margin: 0 0 20px 0; font-size: 20px; font-weight: 800; color: #1e293b;'>🔄 Group Comparison</h4>
                         <pre style='background: #f8fafc; padding: 20px; border-radius: 12px; overflow-x: auto; border: 2px solid #e2e8f0; color: #1e293b;'>{json.dumps(c, indent=2)}</pre>
                     </div>
                     """
-                
-                status_text = job.get('status', 'unknown')
-                status_emoji = "⏳" if status_text == "running" else "✅" if status_text == "completed" else "❌" if status_text == "failed" else "🔵"
-                
+
+                status_text = job.get("status", "unknown")
+                status_emoji = (
+                    "⏳"
+                    if status_text == "running"
+                    else (
+                        "✅"
+                        if status_text == "completed"
+                        else "❌" if status_text == "failed" else "🔵"
+                    )
+                )
+
                 return {
                     progress_text: f"{status_emoji} Status: {status_text}",
                     progress_bar: pct,
                     batch_summary_html: summary_html,
-                    comparison_html: compare_html
+                    comparison_html: compare_html,
                 }
-            
-            refresh_status_btn.click(poll_job_status, inputs=[job_id_text], outputs=[progress_text, progress_bar, batch_summary_html, comparison_html])
-            
+
+            refresh_status_btn.click(
+                poll_job_status,
+                inputs=[job_id_text],
+                outputs=[
+                    progress_text,
+                    progress_bar,
+                    batch_summary_html,
+                    comparison_html,
+                ],
+            )
+
             def export_last_json():
+                """Export the most recent batch results to a JSON file and return
+                the filename and a status message.
+                """
                 try:
                     if not self.last_batch_results:
                         return None, "⚠️ No batch results to export"
-                    os.makedirs('./export', exist_ok=True)
+                    os.makedirs("./export", exist_ok=True)
                     fname = f"./export/batch_results_{int(time.time())}.json"
                     save_results_json(fname, self.last_batch_results)
                     return fname, f"✅ Saved to {fname}"
                 except Exception as e:
                     return None, f"❌ Export failed: {e}"
-            
+
             def export_last_csv():
+                """Export the most recent batch results to CSV and return status."""
                 try:
                     if not self.last_batch_results:
                         return None, "⚠️ No batch results to export"
-                    os.makedirs('./export', exist_ok=True)
+                    os.makedirs("./export", exist_ok=True)
                     fname = f"./export/batch_results_{int(time.time())}.csv"
                     save_results_csv(fname, self.last_batch_results)
                     return fname, f"✅ Saved to {fname}"
                 except Exception as e:
                     return None, f"❌ Export failed: {e}"
-            
-            export_json_btn.click(export_last_json, outputs=[export_download, progress_text])
-            export_csv_btn.click(export_last_csv, outputs=[export_download, progress_text])
-        
+
+            export_json_btn.click(
+                export_last_json, outputs=[export_download, progress_text]
+            )
+            export_csv_btn.click(
+                export_last_csv, outputs=[export_download, progress_text]
+            )
+
         return demo
-    
+
     def analyze_batch(self, texts: List[str], progress_callback=None) -> List[Dict]:
+        """Analyze a list of texts and return per-text analysis results.
+
+        This method attempts to use a batched prediction for speed and falls
+        back to per-text analysis if an error occurs. An optional
+        `progress_callback(processed, total)` may be provided to receive
+        progress updates.
+
+        Args:
+            texts: List of input strings to analyze.
+            progress_callback: Optional callable receiving (processed, total).
+
+        Returns:
+            List of result dicts in the same format as `analyze_text`.
+        """
         results = []
         total = len(texts)
         try:
-            batch_preds = self.analyzer.detector.predict_batch_batched([t for t in texts])
+            batch_preds = self.analyzer.detector.predict_batch_batched(
+                [t for t in texts]
+            )
             for i, (t, pred) in enumerate(zip(texts, batch_preds), 1):
                 try:
                     res = self.analyzer.analyze_text(t)
-                    res['bias_probability'] = pred.get('bias_probability', res.get('bias_probability'))
-                    res['bias_class'] = pred.get('classification', res.get('bias_class'))
-                    res['confidence'] = pred.get('confidence', res.get('confidence'))
+                    res["bias_probability"] = pred.get(
+                        "bias_probability", res.get("bias_probability")
+                    )
+                    res["bias_class"] = pred.get(
+                        "classification", res.get("bias_class")
+                    )
+                    res["confidence"] = pred.get("confidence", res.get("confidence"))
                 except Exception:
                     res = {
-                        'text': t,
-                        'bias_probability': pred.get('bias_probability', 0.0),
-                        'bias_class': pred.get('classification', 'UNKNOWN'),
-                        'confidence': pred.get('confidence', 0.0),
-                        'top_biased_words': [],
-                        'shap_scores': [],
-                        'counterfactuals': [],
-                        'timestamp': time.time()
+                        "text": t,
+                        "bias_probability": pred.get("bias_probability", 0.0),
+                        "bias_class": pred.get("classification", "UNKNOWN"),
+                        "confidence": pred.get("confidence", 0.0),
+                        "top_biased_words": [],
+                        "shap_scores": [],
+                        "counterfactuals": [],
+                        "timestamp": time.time(),
                     }
                 results.append(res)
                 if progress_callback:
@@ -1634,63 +1946,78 @@ class BiasGuardDashboard:
                     res = self.analyzer.analyze_text(t)
                     results.append(res)
                 except Exception as e:
-                    results.append({
-                        'text': t,
-                        'error': str(e),
-                        'timestamp': time.time()
-                    })
+                    results.append(
+                        {"text": t, "error": str(e), "timestamp": time.time()}
+                    )
                 if progress_callback:
                     try:
                         progress_callback(i, total)
                     except Exception:
                         pass
         return results
-    
+
     def summarize_batch(self, results: List[Dict]) -> Dict[str, Any]:
+        """Summarize batch results with aggregate statistics.
+
+        Produces total count, average bias probability, class counts and top
+        biased words frequency for quick reporting in the UI.
+        """
         total = len(results)
         if total == 0:
             return {}
-        bias_probs = [r.get('bias_probability', 0.0) for r in results if 'bias_probability' in r]
+        bias_probs = [
+            r.get("bias_probability", 0.0) for r in results if "bias_probability" in r
+        ]
         classes = {}
         top_words = {}
         for r in results:
-            cls = r.get('bias_class', 'UNKNOWN')
+            cls = r.get("bias_class", "UNKNOWN")
             classes[cls] = classes.get(cls, 0) + 1
-            for w in r.get('top_biased_words', []):
+            for w in r.get("top_biased_words", []):
                 top_words[w] = top_words.get(w, 0) + 1
         avg_bias = sum(bias_probs) / len(bias_probs) if bias_probs else 0.0
         return {
-            'total': total,
-            'avg_bias_probability': avg_bias,
-            'class_counts': classes,
-            'top_words_frequency': sorted(top_words.items(), key=lambda x: x[1], reverse=True)[:20]
+            "total": total,
+            "avg_bias_probability": avg_bias,
+            "class_counts": classes,
+            "top_words_frequency": sorted(
+                top_words.items(), key=lambda x: x[1], reverse=True
+            )[:20],
         }
-    
-    def compare_groups(self, group_a: List[Dict], group_b: List[Dict]) -> Dict[str, Any]:
+
+    def compare_groups(
+        self, group_a: List[Dict], group_b: List[Dict]
+    ) -> Dict[str, Any]:
+        """Compute simple group-level statistics and difference in bias.
+
+        Returns a dict containing per-group counts and average bias score as
+        well as the delta (group_a_avg - group_b_avg).
+        """
+
         def stats(group):
-            probs = [r.get('bias_probability', 0.0) for r in group if 'bias_probability' in r]
+            probs = [
+                r.get("bias_probability", 0.0) for r in group if "bias_probability" in r
+            ]
             avg = sum(probs) / len(probs) if probs else 0.0
-            return {'count': len(group), 'avg_bias': avg}
+            return {"count": len(group), "avg_bias": avg}
+
         a_stats = stats(group_a)
         b_stats = stats(group_b)
-        delta = a_stats['avg_bias'] - b_stats['avg_bias']
-        return {
-            'group_a': a_stats,
-            'group_b': b_stats,
-            'avg_bias_delta': delta
-        }
+        delta = a_stats["avg_bias"] - b_stats["avg_bias"]
+        return {"group_a": a_stats, "group_b": b_stats, "avg_bias_delta": delta}
 
 
 def main():
+    """Entry point to launch the BiasGuard Pro dashboard.
+
+    Constructs the dashboard and launches the Gradio server. This function
+    is executed when running the module as a script.
+    """
     print("🚀 Launching BiasGuard Pro Dashboard (Enhanced UI)...")
     dashboard = BiasGuardDashboard()
     demo = dashboard.create_dashboard()
-    demo.launch(
-        server_name="0.0.0.0",
-        share=True,
-        debug=True,
-        show_error=True
-    )
+    demo.launch(server_name="0.0.0.0", share=True, debug=True, show_error=True)
+
 
 if __name__ == "__main__":
     main()

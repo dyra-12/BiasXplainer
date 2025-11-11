@@ -1,37 +1,59 @@
 import re
 from typing import List, Tuple
-from transformers import T5ForConditionalGeneration, T5Tokenizer
+
 import torch
+from transformers import T5ForConditionalGeneration, T5Tokenizer
+
 
 class GrammarPolisher:
     def __init__(self):
+        """Load a small T5-based grammar polisher used to clean suggestions.
+
+        The polisher uses a lightweight Flan-T5 model to perform simple
+        grammatical rewrites. The model is loaded onto GPU if available.
+        """
         print("🔧 Loading grammar polisher...")
         self.tokenizer = T5Tokenizer.from_pretrained("google/flan-t5-small")
         self.model = T5ForConditionalGeneration.from_pretrained("google/flan-t5-small")
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.model.to(self.device)
         print("✅ Grammar polisher loaded!")
-    
+
     def polish_phrase(self, text: str) -> str:
+        """Apply a small set of deterministic pattern substitutions.
+
+        This is a fast, rule-based cleanup pass that fixes common duplicated
+        tokens and awkward phrases produced by template substitution.
+
+        Args:
+            text: Input string to polish.
+
+        Returns:
+            Polished string.
+        """
         issues = {
-            r'\b(\w+) skills skills\b': r'\1 skills',
-            r'\b(\w+) abilities abilities\b': r'\1 abilities', 
-            r'\bdemonstrate well-suited\b': 'are well-suited',
-            r'\bpeople may be healthcare\b': 'people may pursue healthcare roles',
-            r'\bat technical roles\b': 'for technical roles',
-            r'\bin technical\b': 'in technical fields',
+            r"\b(\w+) skills skills\b": r"\1 skills",
+            r"\b(\w+) abilities abilities\b": r"\1 abilities",
+            r"\bdemonstrate well-suited\b": "are well-suited",
+            r"\bpeople may be healthcare\b": "people may pursue healthcare roles",
+            r"\bat technical roles\b": "for technical roles",
+            r"\bin technical\b": "in technical fields",
         }
-        
+
         for pattern, replacement in issues.items():
             text = re.sub(pattern, replacement, text, flags=re.IGNORECASE)
-        
+
         return text
+
 
 class CounterfactualGenerator:
     def __init__(self):
+        """Prepare templates, replacement rules and helper utilities used
+        to generate bias-mitigating counterfactual suggestions.
+        """
         print("🚀 Initializing Counterfactual Generator...")
         self.grammar_polisher = GrammarPolisher()
-        
+
         self.templates = {
             "gender_role": [
                 "People with {skill} often excel in {field} roles.",
@@ -51,26 +73,51 @@ class CounterfactualGenerator:
             "behavior_description": [
                 "The {role} demonstrated {trait} during the {context}.",
                 "During the {context}, the {role} showed {trait}.",
-            ]
+            ],
         }
-        
+
         self.replacements = {
-            "women": "people", "men": "people", "woman": "person", "man": "person",
-            "she": "they", "he": "they", "female": "", "male": "",
-            "naturally": "", "inherently": "", "should": "may", "must": "can",
-            "better": "well-suited", "best": "highly qualified", "too": "",
-            "compassionate": "interpersonal skills", "caring": "supportive abilities",
-            "emotional": "emotional intelligence", "aggressive": "assertiveness",
-            "nurturing": "supportive qualities", "decisive": "strategic decision-making",
-            "nurse": "healthcare", "nurses": "healthcare", "nursing": "healthcare",
-            "engineer": "technical", "engineers": "technical", "engineering": "technical",
-            "secretary": "administrative", "teacher": "educational", 
-            "leadership": "leadership", "business": "business", 
-            "needs": "can benefit from", "need": "can benefit from",
-            "was": "demonstrated", "is": "demonstrates", "are": "demonstrate",
-            "very": "", "less": "appropriate", "more": "enhanced",
+            "women": "people",
+            "men": "people",
+            "woman": "person",
+            "man": "person",
+            "she": "they",
+            "he": "they",
+            "female": "",
+            "male": "",
+            "naturally": "",
+            "inherently": "",
+            "should": "may",
+            "must": "can",
+            "better": "well-suited",
+            "best": "highly qualified",
+            "too": "",
+            "compassionate": "interpersonal skills",
+            "caring": "supportive abilities",
+            "emotional": "emotional intelligence",
+            "aggressive": "assertiveness",
+            "nurturing": "supportive qualities",
+            "decisive": "strategic decision-making",
+            "nurse": "healthcare",
+            "nurses": "healthcare",
+            "nursing": "healthcare",
+            "engineer": "technical",
+            "engineers": "technical",
+            "engineering": "technical",
+            "secretary": "administrative",
+            "teacher": "educational",
+            "leadership": "leadership",
+            "business": "business",
+            "needs": "can benefit from",
+            "need": "can benefit from",
+            "was": "demonstrated",
+            "is": "demonstrates",
+            "are": "demonstrate",
+            "very": "",
+            "less": "appropriate",
+            "more": "enhanced",
         }
-        
+
         self.generic_fallbacks = [
             "Professional success often involves developing relevant skills and capabilities.",
             "People can build strong professional abilities through dedicated learning.",
@@ -78,62 +125,78 @@ class CounterfactualGenerator:
         ]
 
     def _extract_components(self, text: str, shap_words: List[str]) -> dict:
+        """Extract high-level components (field, skill, trait, role, context)
+
+        Heuristically inspects the input text and top SHAP words to produce a
+        small components map used to fill generation templates.
+        """
         text_lower = text.lower()
         components = {
-            "field": "professional", 
-            "skill": "relevant skills", 
+            "field": "professional",
+            "skill": "relevant skills",
             "trait": "important abilities",
             "role": "professional",
-            "context": "professional context"
+            "context": "professional context",
         }
-        
+
         fields = ["nurse", "engineer", "secretary", "teacher", "leadership", "business"]
         for field in fields:
             if field in text_lower:
                 components["field"] = self.replacements.get(field, field)
                 break
-        
-        roles = {"secretary": "administrative professional", "candidate": "professional"}
+
+        roles = {
+            "secretary": "administrative professional",
+            "candidate": "professional",
+        }
         for role, mapped_role in roles.items():
             if role in text_lower:
                 components["role"] = mapped_role
                 break
-        
+
         if "today" in text_lower:
             components["context"] = "workday"
         elif "presentation" in text_lower:
             components["context"] = "presentation"
         elif "meeting" in text_lower:
             components["context"] = "meeting"
-        
+
         traits = {
-            "compassionate": "interpersonal skills", 
+            "compassionate": "interpersonal skills",
             "emotional": "emotional intelligence",
-            "aggressive": "assertiveness", 
+            "aggressive": "assertiveness",
             "decisive": "strategic decision-making",
         }
-        
+
         for word in shap_words:
-            clean_word = re.sub(r'[^\w]', '', word.lower())
+            clean_word = re.sub(r"[^\w]", "", word.lower())
             if clean_word in traits:
                 components["skill"] = traits[clean_word]
                 components["trait"] = traits[clean_word]
                 break
-        
+
         if components["skill"] == "relevant skills" and shap_words:
-            components["skill"] = self.replacements.get(shap_words[0].lower(), shap_words[0])
+            components["skill"] = self.replacements.get(
+                shap_words[0].lower(), shap_words[0]
+            )
             components["trait"] = components["skill"]
-        
+
         return components
 
     def _apply_smart_replacements(self, text: str, shap_words: List[str]) -> str:
+        """Apply the replacements map to transform biased words into neutral
+        alternatives.
+
+        If no replacements apply this returns an empty string to indicate no
+        change was made.
+        """
         words = text.split()
         new_words = []
         changed = False
-        
+
         for word in words:
-            clean_word = re.sub(r'[^\w]', '', word.lower())
-            
+            clean_word = re.sub(r"[^\w]", "", word.lower())
+
             if clean_word in self.replacements:
                 replacement = self.replacements[clean_word]
                 if replacement:
@@ -145,47 +208,77 @@ class CounterfactualGenerator:
                     continue
             else:
                 new_words.append(word)
-        
+
         if not changed:
             return ""
-            
-        result = ' '.join(new_words)
-        result = re.sub(r'\bthey needs\b', 'they need', result, flags=re.IGNORECASE)
-        result = re.sub(r'\bcan benefit from to be\b', 'can benefit from being', result)
-        result = re.sub(r'\s+', ' ', result).strip()
-        
+
+        result = " ".join(new_words)
+        result = re.sub(r"\bthey needs\b", "they need", result, flags=re.IGNORECASE)
+        result = re.sub(r"\bcan benefit from to be\b", "can benefit from being", result)
+        result = re.sub(r"\s+", " ", result).strip()
+
         return result
 
     def _clean_grammar(self, text: str) -> str:
-        text = re.sub(r'\s+', ' ', text).strip()
-        if not text.endswith(('.', '!', '?')):
-            text = text + '.'
+        """Perform small grammar/formatting fixes on generated strings.
+
+        Ensures proper punctuation and capitalization.
+        """
+        text = re.sub(r"\s+", " ", text).strip()
+        if not text.endswith((".", "!", "?")):
+            text = text + "."
         if text and text[0].islower():
             text = text[0].upper() + text[1:]
         return text
 
-    def generate_counterfactuals(self, text: str, shap_results: List[Tuple[str, float]], num_alternatives: int = 3) -> List[str]:
+    def generate_counterfactuals(
+        self,
+        text: str,
+        shap_results: List[Tuple[str, float]],
+        num_alternatives: int = 3,
+    ) -> List[str]:
+        """Generate a small set of neutral alternative phrasings for `text`.
+
+        Uses a mix of template-based generation, smart dictionary replacements
+        and fallback generic statements to produce `num_alternatives`
+        suggestions. Generated outputs are grammar-polished before returning.
+
+        Args:
+            text: Original input text.
+            shap_results: Top SHAP word list (word, score) used to guide rewriting.
+            num_alternatives: Number of alternatives to return (default 3).
+
+        Returns:
+            List of neutral suggestion strings (length <= num_alternatives).
+        """
         shap_words = [word for word, score in shap_results[:3]]
         components = self._extract_components(text, shap_words)
-        
+
         suggestions = []
         text_lower = text.lower()
-        
+
         # Template-based generation
         template_categories = []
-        
-        if any(phrase in text_lower for phrase in ["should be", "would be", "needs to be"]):
+
+        if any(
+            phrase in text_lower for phrase in ["should be", "would be", "needs to be"]
+        ):
             template_categories.append("gender_role")
-        if any(phrase in text_lower for phrase in ["naturally better", "inherently better", "are better"]):
+        if any(
+            phrase in text_lower
+            for phrase in ["naturally better", "inherently better", "are better"]
+        ):
             template_categories.append("gender_comparison")
         if any(word in text_lower for word in ["today", "during", "presentation"]):
             template_categories.append("behavior_description")
-        if any(word in text_lower for word in ["emotional", "aggressive", "compassionate"]):
+        if any(
+            word in text_lower for word in ["emotional", "aggressive", "compassionate"]
+        ):
             template_categories.append("gender_trait")
-        
+
         if not template_categories:
             template_categories = ["gender_role", "gender_trait", "gender_comparison"]
-        
+
         used_templates = set()
         for category in template_categories:
             for template in self.templates[category][:2]:
@@ -193,10 +286,10 @@ class CounterfactualGenerator:
                     try:
                         suggestion = template.format(
                             skill=components["skill"],
-                            field=components["field"], 
+                            field=components["field"],
                             trait=components["trait"],
                             role=components["role"],
-                            context=components["context"]
+                            context=components["context"],
                         )
                         suggestion = self._clean_grammar(suggestion)
                         if suggestion not in suggestions:
@@ -204,31 +297,31 @@ class CounterfactualGenerator:
                             used_templates.add(template)
                     except:
                         continue
-        
+
         # Smart replacements
         replaced = self._apply_smart_replacements(text, shap_words)
         if replaced and replaced not in suggestions:
             suggestions.append(replaced)
-        
+
         # Ensure we have enough suggestions
         while len(suggestions) < num_alternatives:
             if len(suggestions) < num_alternatives:
                 gender_removed = re.sub(
-                    r'\b(women|men|woman|man|she|he|female|male)\b', 
-                    'people', 
-                    text, 
-                    flags=re.IGNORECASE
+                    r"\b(women|men|woman|man|she|he|female|male)\b",
+                    "people",
+                    text,
+                    flags=re.IGNORECASE,
                 )
                 gender_removed = self._clean_grammar(gender_removed)
                 if gender_removed != text and gender_removed not in suggestions:
                     suggestions.append(gender_removed)
-            
+
             if len(suggestions) < num_alternatives:
                 for fallback in self.generic_fallbacks:
                     if fallback not in suggestions:
                         suggestions.append(fallback)
                         break
-        
+
         # Polish all suggestions
         polished_suggestions = []
         for s in suggestions[:num_alternatives]:
@@ -236,5 +329,5 @@ class CounterfactualGenerator:
             polished = self._clean_grammar(polished)
             if polished and polished not in polished_suggestions:
                 polished_suggestions.append(polished)
-        
+
         return polished_suggestions[:num_alternatives]
