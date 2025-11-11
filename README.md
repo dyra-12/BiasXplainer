@@ -1,6 +1,6 @@
 <div align="center">
   
-<img src="assets/biasxplainer_banner.png" alt="BiasXplainer Dashboard Preview" width="820"/>
+<img src="assets/dashboard.png" alt="BiasXplainer Dashboard Preview" width="820"/>
 
 ![Python](https://img.shields.io/badge/Python-3.10+-3776AB.svg)
 ![Transformers](https://img.shields.io/badge/🤖-Transformers-yellow.svg)
@@ -87,7 +87,7 @@ Try it instantly on Hugging Face Spaces:
 
 ### 👉 [Launch Interactive Demo](https://huggingface.co/spaces/OWNER/BiasXplainer)
 
-*(Replace `OWNER` with your actual namespace. Provide the real URL and this section will be finalized.)*
+
 
 ---
 
@@ -227,19 +227,23 @@ print(results)  # [{'bias_probability': ..., 'classification': ..., 'confidence'
 ---
 
 ## 📊 Performance
+Record metrics in `results/latency_before_after.csv` (create if missing).
 
-Record metrics in `results/latency_before_after.csv` (create if missing):
+The project stores per-step latency measurements with the following CSV schema: `step,before_s,after_s,improvement_pct`.
 
-Suggested columns:
-| metric | unit | description |
-|--------|------|-------------|
-| single_inference_mean | ms | Avg latency per sentence (no batching) |
-| shap_explanation_mean | ms | Avg token attribution time |
-| counterfactual_gen_mean | ms | Avg time to produce rewrites |
-| batch_throughput_bsz_16 | texts/sec | Throughput at batch size 16 |
-| batch_throughput_bsz_64 | texts/sec | Throughput at batch size 64 |
+Current recorded values (from `results/latency_before_after.csv`):
 
-Add before/after rows when optimizing.
+| Step | Before (s) | After (s) | Improvement (%) |
+|------|-----------:|----------:|----------------:|
+| predict_bias | 0.90 | 0.35 | 61.11 |
+| get_shap_values | 24.00 | 6.60 | 72.50 |
+| generate_counterfactuals | 2.50 | 1.00 | 60.00 |
+| create_shap_chart | 0.80 | 0.50 | 37.50 |
+| create_bias_meter | 0.20 | 0.15 | 25.00 |
+| highlight_biased_words | 0.60 | 0.40 | 33.33 |
+| total | 29.00 | 9.00 | 68.97 |
+
+These numbers are measured averages before and after the recent optimizations. Observation: most of the improvement (total ≈ 69%, SHAP ≈ 72%) comes from parallelizing classifier + SHAP work (async/futures), batching to reduce tokenizer/forward overhead, a lightweight SHAP fallback and token-merging to avoid expensive attributions on every input, plus caching and smaller polisher/model choices.
 
 ---
 
@@ -381,10 +385,8 @@ in the Software without restriction...
 
 ## 📬 Contact & Support
 
-- GitHub Issues: (Add URL once repo issues enabled)
-- Discussions: (Enable discussions for Q&A if desired)
-- Email: your_email@example.com (replace)
-- Hugging Face Space: (Provide final live link)
+- Email: dyutidasmahaptra@gmail.com
+- Hugging Face Space: 
 
 ---
 
