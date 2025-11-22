@@ -4,10 +4,9 @@ emoji: "🛡️"
 colorFrom: purple
 colorTo: pink
 sdk: gradio
-sdk_version: "4.0.0"
+sdk_version: "3.34.0"
 app_file: app.py
 pinned: false
-license: mit
 ---
 
 <div align="center">
@@ -97,7 +96,9 @@ BiasXplainer helps you:
 
 Try it instantly on Hugging Face Spaces:
 
-### 👉 [Launch Interactive Demo](https://huggingface.co/spaces/Dyra1204/BiasGuard-Pro)
+### 👉 [Launch Interactive Demo](https://huggingface.co/spaces/OWNER/BiasXplainer)
+
+
 
 ---
 
@@ -138,7 +139,7 @@ BiasXplainer/
 <a id="usage-guide"></a>
 ## 🎯 Usage Guide
 
-### Quick Start (Local)
+### Quick Start (10 Seconds)
 ```bash
 git clone https://github.com/dyra-12/BiasXplainer.git
 cd BiasXplainer
@@ -150,9 +151,16 @@ Open the printed local URL to start auditing text.
 
 ### GUI Workflows
 
-1. **Single Analysis** – Paste text → Analyze → View bias score, class, SHAP token chart, highlighted impacts, and counterfactual suggestions.
-2. **Batch & Compare** – Paste multi-line text OR upload `.txt / .csv / .json` → Start job → Poll status → Download results. Optionally specify two substrings (e.g., `women`, `men`).
-3. **Export** – Use Export buttons (JSON/CSV) or programmatic API calls. Files saved under `./export/`.
+1. **Single Analysis**
+   - Paste text → Analyze → View bias score, class, SHAP token chart, highlighted impacts, and counterfactual suggestions.
+
+2. **Batch & Compare**
+   - Paste multi-line text OR upload `.txt / .csv / .json` → Start job → Poll status → Download results.
+   - Optionally specify two substrings (e.g., `women`, `men`) for comparative averages.
+
+3. **Export**
+   - Use Export buttons (JSON/CSV) or programmatic API calls.
+   - Files saved under `./export/` by default.
 
 ### Supported Input Formats
 | Format | Structure |
@@ -167,9 +175,9 @@ from main import BiasGuardDashboard
 
 dashboard = BiasGuardDashboard()
 texts = [
-	"Women should be nurses because they are compassionate.",
-	"Men are naturally better at engineering roles.",
-	"This is a neutral sentence."
+    "Women should be nurses because they are compassionate.",
+    "Men are naturally better at engineering roles.",
+    "This is a neutral sentence."
 ]
 
 results = dashboard.analyzer.detector.predict_batch_batched(texts)
@@ -190,7 +198,10 @@ print(results)  # [{'bias_probability': ..., 'classification': ..., 'confidence'
 
 ### Batch Flow
 - Batched DistilBERT inference
-- Async background job collects: mean bias probability, class distribution counts, top impactful tokens
+- Async background job collects:
+  - Mean bias probability
+  - Class distribution counts
+  - Top impactful tokens
 - Optional simple substring comparison overlay
 
 ---
@@ -229,7 +240,9 @@ print(results)  # [{'bias_probability': ..., 'classification': ..., 'confidence'
 ## 📊 Performance
 Record metrics in `results/latency_before_after.csv` (create if missing).
 
-The project stores per-step latency measurements with the CSV schema: `step,before_s,after_s,improvement_pct`.
+The project stores per-step latency measurements with the following CSV schema: `step,before_s,after_s,improvement_pct`.
+
+Current recorded values (from `results/latency_before_after.csv`):
 
 | Step | Before (s) | After (s) | Improvement (%) |
 |------|-----------:|----------:|----------------:|
@@ -240,6 +253,8 @@ The project stores per-step latency measurements with the CSV schema: `step,befo
 | create_bias_meter | 0.20 | 0.15 | 25.00 |
 | highlight_biased_words | 0.60 | 0.40 | 33.33 |
 | total | 29.00 | 9.00 | 68.97 |
+
+These numbers are measured averages before and after the recent optimizations. Observation: most of the improvement (total ≈ 69%, SHAP ≈ 72%) comes from parallelizing classifier + SHAP work (async/futures), batching to reduce tokenizer/forward overhead, a lightweight SHAP fallback and token-merging to avoid expensive attributions on every input, plus caching and smaller polisher/model choices.
 
 ---
 
@@ -382,7 +397,9 @@ in the Software without restriction...
 ## 📬 Contact & Support
 
 - Email: dyutidasmahaptra@gmail.com
-- Hugging Face Space: https://huggingface.co/spaces/Dyra1204/BiasGuard-Pro
+- Hugging Face Space: 
+
+---
 
 <div align="center">
 

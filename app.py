@@ -1,18 +1,16 @@
-"""Hugging Face Space entrypoint.
+"""Hugging Face Space entrypoint for BiasGuard Pro.
 
-This file re-uses the existing `main.py` dashboard implementation and
-invokes the same launch sequence. The Space will execute this file to
-start the Gradio app.
+Exposes a `demo` Gradio Blocks instance so Spaces auto-detects and can
+serve it. When executed directly, launches the app. This avoids using
+`share=True` inside Spaces (unnecessary) and reuses the dashboard builder.
 """
 
-from main import main
+from main import BiasGuardDashboard
 
-
-def run():
-    # Call the project's main launcher which constructs and starts the
-    # Gradio Blocks dashboard.
-    main()
-
+# Construct the dashboard once; Spaces will look for a top-level `demo`.
+dashboard = BiasGuardDashboard()
+demo = dashboard.create_dashboard()
 
 if __name__ == "__main__":
-    run()
+    # Local execution path.
+    demo.launch(server_name="0.0.0.0", show_error=True, debug=False)
