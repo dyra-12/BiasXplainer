@@ -85,7 +85,7 @@ BiasXplainer helps you:
 
 Try it instantly on Hugging Face Spaces:
 
-### 👉 [Launch Interactive Demo](https://huggingface.co/spaces/OWNER/BiasXplainer)
+### 👉 [Launch Interactive Demo](https://huggingface.co/spaces/Dyra1204/BiasGuard-Pro)
 
 
 
