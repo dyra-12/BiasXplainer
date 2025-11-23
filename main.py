@@ -2,7 +2,7 @@ import json
 import os
 import re
 import time
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 
 import gradio as gr
 import pandas as pd
@@ -11,31 +11,38 @@ import plotly.graph_objects as go
 from core.bias_detector import BiasDetector
 from core.counterfactuals import CounterfactualGenerator
 from core.explainer import SHAPExplainer
+from core.advanced import BiasGuardProAdvanced
 from export.csv_export import export_results_to_csv, save_results_csv
 from export.json_export import export_results_to_json, save_results_json
 
 
 class BiasGuardPro:
-    def __init__(self, model_path: str = None):
+    def __init__(self, model_path: str = None, use_advanced: bool | None = None):
         """High-level analyzer that wires detector, explainer and counterfactuals.
 
-        This class exposes the main `analyze_text` method used by the UI and
-        batch runner. It auto-detects a model path when none is provided and
-        initializes the core components.
-
-        Args:
-            model_path: Optional path or model id. If None, will attempt to
-                auto-detect local model artifacts.
+        Supports an "advanced" pipeline (rule-enhanced SHAP + improved counterfactuals)
+        requested by user. Enable via `use_advanced=True` or environment variable
+        `BIASGUARD_ADVANCED=1`.
         """
         print("🚀 Initializing BiasGuard Pro...")
 
         if model_path is None:
             model_path = self._auto_detect_model_path()
 
+        # Determine advanced mode
+        if use_advanced is None:
+            use_advanced = os.environ.get("BIASGUARD_ADVANCED", "0") in {"1", "true", "True"}
+        self._advanced_enabled = use_advanced
+
         print(f"📁 Using model path: {model_path}")
-        self.detector = BiasDetector(model_path)
-        self.explainer = SHAPExplainer(model_path)
-        self.counterfactuals = CounterfactualGenerator()
+        if self._advanced_enabled:
+            print("🔧 Advanced analysis pipeline ENABLED")
+            self._advanced = BiasGuardProAdvanced(model_path)
+        else:
+            print("🔧 Advanced analysis pipeline DISABLED (using legacy components)")
+            self.detector = BiasDetector(model_path)
+            self.explainer = SHAPExplainer(model_path)
+            self.counterfactuals = CounterfactualGenerator()
         print("✅ BiasGuard Pro initialized successfully!\n")
 
     def _auto_detect_model_path(self) -> str:
@@ -56,58 +63,46 @@ class BiasGuardPro:
         return "distilbert-base-uncased"
 
     def analyze_text(self, text: str) -> Dict:
-        """Analyze a single text for bias.
+        if self._advanced_enabled:
+            return self._advanced.analyze_text(text)
 
-        Runs prediction, SHAP explanation and counterfactual generation and
-        returns a dictionary with results and lightweight profiling timings.
-
-        Args:
-            text: Input string to analyze.
-
-        Returns:
-            Dict containing analysis results such as 'bias_probability',
-            'shap_scores', 'counterfactuals' and 'timings'.
-        """
-        print(f"🔍 Analyzing: '{text}'")
-        timings = {}
+        print(f"🔍 Analyzing: '{text}' (legacy pipeline)")
+        timings: Dict[str, float] = {}
         t0 = time.perf_counter()
 
-        # Run bias prediction and SHAP explainer in parallel to overlap latency
         from concurrent.futures import ThreadPoolExecutor
-
         with ThreadPoolExecutor(max_workers=2) as exc:
             fut_bias = exc.submit(self.detector.predict_bias, text)
             fut_shap = exc.submit(self.explainer.get_shap_values, text)
-
             t_start = time.perf_counter()
             bias_result = fut_bias.result()
             timings["predict_bias"] = time.perf_counter() - t_start
-
             t_start = time.perf_counter()
             shap_results = fut_shap.result()
             timings["get_shap_values"] = time.perf_counter() - t_start
-
         print(f"   Top biased words: {[w for w, s in shap_results[:3]]}")
-
         t_start = time.perf_counter()
-        counterfactuals = self.counterfactuals.generate_counterfactuals(
-            text, shap_results
-        )
+        counterfactuals = self.counterfactuals.generate_counterfactuals(text, shap_results)
         timings["generate_counterfactuals"] = time.perf_counter() - t_start
-
         timings["analyze_text_total"] = time.perf_counter() - t0
-
         return {
             "text": text,
             "bias_probability": bias_result.get("bias_probability"),
             "bias_class": bias_result.get("classification"),
             "confidence": bias_result.get("confidence"),
-            "top_biased_words": [w for w, s in shap_results[:3]],
+            # Prefer tokens with positive SHAP contributions (increase predicted bias).
+            "top_biased_words": self._select_top_positive_words(shap_results, top_k=3),
             "shap_scores": shap_results[:10],
             "counterfactuals": counterfactuals,
             "timestamp": time.time(),
             "timings": timings,
         }
+
+    def _select_top_positive_words(self, shap_results: List[Tuple[str, float]], top_k: int = 3) -> List[str]:
+        # Only return tokens with positive SHAP contributions. Do not pad
+        # with negatives — this may return fewer than `top_k` items.
+        positives = [w for w, s in shap_results if s > 0]
+        return positives[:top_k]
 
 
 class BiasGuardDashboard:
@@ -116,7 +111,10 @@ class BiasGuardDashboard:
         BiasGuardPro analyzer and provides helpers for batch processing.
         """
         print("🎨 Initializing BiasGuard Pro Dashboard...")
-        self.analyzer = BiasGuardPro()
+        # Force advanced pipeline by default; can disable by setting env var BIASGUARD_ADVANCED=0
+        adv_env = os.environ.get("BIASGUARD_ADVANCED", "1")
+        use_advanced = adv_env not in {"0", "false", "False"}
+        self.analyzer = BiasGuardPro(use_advanced=use_advanced)
         self.analysis_history = []
         self.last_batch_results: List[Dict] = []
         self._jobs: Dict[str, Dict] = {}
@@ -412,6 +410,7 @@ class BiasGuardDashboard:
                         <strong style='color: #1e293b;'>Confidence:</strong> <span style='color: {text_color}; font-weight: 600;'>{result['confidence']:.1%}</span>
                     </div>
                 </div>
+                {'' if not result.get('bias_types') else '<div style="margin-top:16px; display:flex; flex-wrap:wrap; gap:8px;">' + ''.join(f'<span style="background:#e0f2fe; color:#0369a1; padding:6px 12px; border-radius:12px; font-size:12px; font-weight:600; border:1px solid #7dd3fc;">{t}</span>' for t in result.get('bias_types', []) ) + '</div>'}
             </div>
             """
 
@@ -495,6 +494,7 @@ class BiasGuardDashboard:
                 "top_words_html": top_words_html,
                 "bias_probability": result["bias_probability"],
                 "bias_class": result["bias_class"],
+                "bias_types": result.get("bias_types", []),
                 "profiling_html": profiling_html,
                 "profiling_data": profiler,
             }
